@@ -1,5 +1,5 @@
 <template>
-  <div class="codereg-content" v-resize="onResize">
+  <div class="codereg-content" v-resize="onResize" style="background: #fff;">
     <v-data-table
       :headers="headers"
       :items="items"
@@ -37,7 +37,7 @@
               >
               <v-btn
                 :disabled="((props.item.status) ? true : false)"
-                slot="activator" icon class="mx-0" @click="resendEmail(props.item)">
+                slot="activator" icon class="mx-0" @click="actionResendEmail(props.item)">
                 <v-icon color="grey darken-1">send</v-icon>
               </v-btn>
               <span>Kirim Ulang</span>
@@ -76,9 +76,9 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
-import dialogAdd from '~/components/dialogs/manage/coderegs/_add'
-import dialogEdit from '~/components/dialogs/manage/coderegs/_edit'
+import {mapState, mapGetters} from 'vuex'
+import dialogAdd from '~/components/dialogs/manages/coderegs/_add'
+import dialogEdit from '~/components/dialogs/manages/coderegs/_edit'
 import {generateTable, resizeTable, loadData} from '~/utils/datatable'
 import {createdAtFormat, coderegStatusFormat} from '~/utils/format'
 export default {
@@ -116,15 +116,14 @@ export default {
     dialogEdit
   },
   computed: {
-    ...mapGetters([
-      'coderegs/list'
-    ]),
-    coderegList: function () {
-      return this['coderegs/list']
-    },
-    formTitle () {
-      return this.item.edit ? 'Edit Item' : 'New Item'
-    },
+    ...mapState({
+      coderegs: 'coderegs',
+      resendEmail: 'resend-email'
+    }),
+    ...mapGetters({
+      organization: 'organizations/current',
+      coderegList: 'coderegsmanagement/list'
+    }),
     loadData () {
       if (typeof this.coderegList !== 'undefined') {
         this.items = this.coderegList
@@ -137,7 +136,7 @@ export default {
       this.getNextPage()
     },
     showSnackbar () {
-      if (this.doResendEmail && !this.$store.state['resend-email'].isPatchPending && this.$store.state['resend-email'].errorOnPatch === null) {
+      if (this.doResendEmail && !this.resendEmail.isPatchPending && this.resendEmail.errorOnPatch === null) {
         this.textSnackbar = 'Kode Registrasi berhasil dikirim.'
         this.doResendEmail = false
         this.snackbarView = true
@@ -145,6 +144,7 @@ export default {
     }
   },
   created () {
+    this.$store.commit('coderegsmanagement/clearAll')
     this.initialize()
   },
   watch: {
@@ -157,6 +157,7 @@ export default {
           }
           let params = {
             query: {
+              organization: this.organization._id,
               $sort: this.sortValue
             }
           }
@@ -172,29 +173,32 @@ export default {
     },
     initialize () {
       let params = {
-        query: {}
+        query: {
+          organization: this.organization._id
+        }
       }
-      this.$store.dispatch('coderegs/find', params)
+      this.$store.dispatch('coderegsmanagement/find', params)
     },
     getNextPage () {
       if (!this.scrollBottom) {
         this.nextPage = false
       }
 
-      if (this.scrollBottom && !this.nextPage && this.items.length < this.$store.state.coderegs.pagination.default.total) {
+      if (this.scrollBottom && !this.nextPage && this.items.length < this.coderegs.pagination.default.total) {
         this.nextPage = true
         this.skipPage++
         let skipValue = this.skipPage * 10
-        if (skipValue > this.$store.state.coderegs.pagination.default.total) {
-          skipValue = this.$store.state.coderegs.pagination.default.total
+        if (skipValue > this.coderegs.pagination.default.total) {
+          skipValue = this.coderegs.pagination.default.total
         }
         let params = {
           query: {
+            organization: this.organization._id,
             $sort: this.sortValue,
             $skip: skipValue
           }
         }
-        this.$store.dispatch('coderegs/find', params)
+        this.$store.dispatch('coderegsmanagement/find', params)
       }
     },
     createdFormat (item) {
@@ -204,10 +208,10 @@ export default {
       return coderegStatusFormat(item)
     },
     editItem (item) {
-      this.$store.commit('coderegs/setCurrent', item)
+      this.$store.commit('coderegsmanagement/setCurrent', item)
       this.$root.$emit('openDialogEditCodeRegs')
     },
-    resendEmail (item) {
+    actionResendEmail (item) {
       this.doResendEmail = true
       let data = {
         type: 'codereg'

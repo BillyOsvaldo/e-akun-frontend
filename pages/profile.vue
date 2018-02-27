@@ -19,66 +19,85 @@
             </div>
             <account/>
           </v-expansion-panel-content>
-          <v-expansion-panel-content>
+          <v-expansion-panel-content v-if="this.profiles">
             <div slot="header">
               <h4>Profil</h4>
               <span>Informasi Nama Lengkap, Alamat, Tanggal Lahir, dan informasi lainnya.</span>
             </div>
             <profile/>
           </v-expansion-panel-content>
-          <v-expansion-panel-content key="opd">
+          <v-expansion-panel-content v-if="this.organizations" key="organization">
             <div slot="header">
-              <h4>OPD</h4>
-              <span>Informasi tentang OPD anda.</span>
+              <h4>Organisasi</h4>
+              <span>Informasi tentang Organisasi anda.</span>
             </div>
-            <opd/>
+            <organization/>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-flex>
     </v-layout>
+    <dialogPassword/>
     <dialogEmail/>
     <dialogFullname/>
+    <dialogGender/>
     <dialogAddress/>
     <dialogBirthplace/>
+    <dialogBirthday/>
     <dialogPhone/>
   </div>
 </template>
 
 <script>
   import {mapGetters} from 'vuex'
-  import {justNameFormat, setValueText} from '~/utils/format'
+  import {justNameFormat} from '~/utils/format'
   import account from '~/components/profiles/_account'
   import profile from '~/components/profiles/_profile'
-  import opd from '~/components/profiles/_opd'
+  import organization from '~/components/profiles/_organization'
   import dialogEmail from '~/components/dialogs/profiles/accounts/_email'
+  import dialogPassword from '~/components/dialogs/profiles/accounts/_password'
   import dialogFullname from '~/components/dialogs/profiles/profiles/_fullname'
+  import dialogGender from '~/components/dialogs/profiles/profiles/_gender'
   import dialogBirthplace from '~/components/dialogs/profiles/profiles/_birthplace'
+  import dialogBirthday from '~/components/dialogs/profiles/profiles/_birthday'
   import dialogAddress from '~/components/dialogs/profiles/profiles/_address'
   import dialogPhone from '~/components/dialogs/profiles/profiles/_phone'
   export default {
     components: {
       account,
       profile,
-      opd,
+      organization,
+      dialogPassword,
       dialogEmail,
       dialogFullname,
+      dialogGender,
       dialogAddress,
       dialogBirthplace,
+      dialogBirthday,
       dialogPhone
+    },
+    computed: {
+      ...mapGetters({
+        profiles: 'profiles/current',
+        app: 'apps/current',
+        administrator: 'administrators/current',
+        organizations: 'organizations/current'
+      }),
+      fullnameText: function () {
+        return (this.profiles === null) ? this.formatNameAdmin(this.app, this.administrator) : justNameFormat(this.profiles.name)
+      }
+    },
+    methods: {
+      formatNameAdmin (app, administrator) {
+        if (app !== null && administrator !== null) {
+          return administrator.name + ' ' + app.name
+        }
+      }
+    },
+    created () {
+      this.$store.commit('usersmanagement/clearAll')
     },
     mounted () {
       this.$store.dispatch('setNavigationTitle', 'Profil Anda')
-    },
-    computed: {
-      ...mapGetters([
-        'userapp/current'
-      ]),
-      profiles: function () {
-        return setValueText(this['userapp/current'], 'profile', true)
-      },
-      fullnameText: function () {
-        return (this.profiles === '') ? '' : justNameFormat(this.profiles.name)
-      }
     }
   }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <v-layout row justify-center v-bind="closedialogAdd">
+  <v-layout row justify-center>
     <v-dialog v-model="dialogAdd" persistent scrollable max-width="360">
       <v-card v-if="dialogAdd">
         <v-card-title class="headline">Tambah Kode Registrasi</v-card-title>
@@ -14,7 +14,9 @@
                   data-vv-name="email"
                   label="Alamat Email"
                   v-on:blur="checkEmail"
-                  :error-messages="errorMessageEmail"></v-text-field>
+                  :error-messages="errorMessageEmail"
+                  v-on:keyup.enter="postCreated"
+                  ></v-text-field>
               </v-flex>
             </v-layout>
           </v-container>
@@ -31,7 +33,7 @@
 </template>
 
 <script>
-  import {mapGetters} from 'vuex'
+  import {mapState, mapGetters} from 'vuex'
   const customHelptext = {
     en: {
       custom: {
@@ -46,42 +48,32 @@
   export default {
     data: () => ({
       dialogAdd: false,
-      doPostAdd: false,
       hasCheckEmail: false,
       email: null
     }),
     computed: {
-      ...mapGetters([
-        'userapp/current'
-      ]),
-      account: function () {
-        return this['userapp/current']
-      },
+      ...mapState({
+        checkuser: 'checkuser'
+      }),
+      ...mapGetters({
+        user: 'users/current'
+      }),
       errorMessageEmail () {
-        if (this.$store.state.checkuser.errorOnFind !== null) {
+        if (this.checkuser.errorOnFind !== null) {
           return 'Email telah digunakan.'
         } else {
           if (this.email !== null) {
             return this.errors.collect('email')
           }
         }
-      },
-      closedialogAdd: function () {
-        if (this.doPostAdd && !this.$store.state.coderegs.isCreatePending && this.$store.state.coderegs.errorOnCreate === null) {
-          this.doPostAdd = false
-          this.dialogAdd = false
-          this.resetAll()
-          this.email = null
-        } else if (this.doPostAdd && !this.$store.state.coderegs.isCreatePending && this.$store.state.coderegs.errorOnCreate !== null) {
-          this.doPostAdd = false
-          this.$validator.reset()
-        }
       }
     },
     watch: {
       email (val) {
-        if (val.length === 0) {
-          this.$store.commit('checkuser/clearFindError')
+        if (typeof val !== 'undefined' && val !== null) {
+          if (val.length === 0) {
+            this.$store.commit('checkuser/clearFindError')
+          }
         }
       }
     },
@@ -107,19 +99,24 @@
       postCreated () {
         this.$validator.validateAll()
           .then((result) => {
-            if (result && this.hasCheckEmail && this.$store.state.checkuser.errorOnFind === null) {
+            if (result && this.hasCheckEmail && this.checkuser.errorOnFind === null) {
               let newCodeReg = {
                 email: this.email,
-                opd: this.account.opd._id
+                organization: this.user.organization
               }
-              this.$store.dispatch('coderegs/create', newCodeReg)
-              this.doPostAdd = true
+              this.$store.dispatch('coderegsmanagement/create', newCodeReg)
+                .then(response => {
+                  if (response) {
+                    this.dialogAdd = false
+                    this.resetAll()
+                  }
+                })
             }
           })
       },
       resetAll () {
         this.$store.commit('checkuser/clearFindError')
-        this.$store.commit('coderegs/clearPatchError')
+        this.$store.commit('coderegsmanagement/clearPatchError')
         this.$validator.reset()
         this.hasCheckEmail = false
         this.email = null

@@ -32,7 +32,7 @@
       </v-list-tile-content>
       <v-list-tile-action>
         <v-tooltip top>
-          <v-btn slot="activator" flat icon>
+          <v-btn slot="activator" flat icon @click.native.stop="$root.$emit('openDialogPassword')">
             <v-icon>edit</v-icon>
           </v-btn>
           <span>Ubah Kata Sandi</span>
@@ -44,17 +44,20 @@
 
 <script>
   import {mapGetters} from 'vuex'
-  import {setValueText} from '~/utils/format'
   export default {
     computed: {
-      ...mapGetters([
-        'userapp/current'
-      ]),
+      ...mapGetters({
+        user: 'users/current'
+      }),
       idAccountText: function () {
-        return setValueText(this['userapp/current'], 'username', false)
+        if (this.user !== null) {
+          return this.user.username
+        }
       },
       emailText: function () {
-        return setValueText(this['userapp/current'], 'email', false)
+        if (this.user !== null) {
+          return this.user.email
+        }
       }
     }
   }

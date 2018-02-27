@@ -4,7 +4,7 @@
       <v-flex xs12 sm7 md6 lg4 xl4>
         <v-card>
           <v-progress-linear
-            v-if="this.$store.state.checkcode.isFindPending"
+            v-if="(this.$store.state.checkcode.isFindPending || this.$store.state.userapp.isCreatePending)"
             style="position: absolute;top: 0px; margin: 0; height: 4px !important;"
             v-bind:indeterminate="true"></v-progress-linear>
           <v-card-title primary-title class="card_title_signup">
@@ -12,7 +12,9 @@
               <div class="img_logo">
                 <img src="../static/images/logo_purbalingga.png" />
               </div>
-              <div style="text-align: center;">
+              <div
+                v-if="this['userapp/current'] === null"
+                style="text-align: center;">
                 <h3 class="headline mb-0">Buat e-Akun</h3>
                 <div>Aplikasi Terintegrasi Kabupaten Purbalingga</div>
               </div>
@@ -21,14 +23,14 @@
           <formCode/>
           <formProfile/>
           <formPassword/>
-          <div>
+          <div v-if="this['userapp/current'] !== null">
             <v-card-text class="card_text_signup">
               <div>
                 <v-flex>
                   <h2>Terimakasih,</h2>
                   <p>Pendaftaran e-Akun telah berhasil, berikut ID Akun Anda:</p>
                   <div style="text-align: center;">
-                    <p class="id_akun"></p>
+                    <p class="id_akun">{{ this['userapp/current'].username }}</p>
                   </div>
                 </v-flex>
               </div>
@@ -37,7 +39,7 @@
               <v-spacer></v-spacer>
               <v-btn
                 color="primary"
-                @click="loginUser">Masuk e-Akun</v-btn>
+                @click.native="loginUser">Masuk e-Akun</v-btn>
             </v-card-actions>
           </div>
         </v-card>
@@ -48,12 +50,23 @@
 </template>
 
 <script>
+  import {mapGetters} from 'vuex'
   import formCode from '~/components/signup/_code'
   import formProfile from '~/components/signup/_profile'
   import formPassword from '~/components/signup/_password'
   export default {
     components: {
       formCode, formProfile, formPassword
+    },
+    computed: {
+      ...mapGetters([
+        'userapp/current'
+      ])
+    },
+    methods: {
+      loginUser () {
+        window.location.href = process.env.HOST_URL_SSO + '/signin'
+      }
     }
   }
 </script>

@@ -1,19 +1,25 @@
 <template>
   <v-layout row justify-center>
-    <v-dialog v-model="dialogBirthplace" persistent scrollable max-width="360">
-      <v-card v-if="dialogBirthplace">
-        <v-card-title class="headline">Ubah Tempat lahir</v-card-title>
+    <v-dialog v-model="dialogGender" persistent scrollable max-width="360">
+      <v-card v-if="dialogGender">
+        <v-card-title class="headline">Ubah Jenis Kelamin</v-card-title>
         <v-card-text style="max-height: 300px;">
           <v-container grid-list-md>
-            <v-layout wrap v-bind="loadDataBirthplace">
+            <v-layout wrap v-bind="loadDataGender">
               <v-flex xs12>
-                <v-text-field
-                  autofocus
-                  v-model="birthplace"
+                <v-select
+                  v-bind:items="gender_items"
+                  item-text="text"
+                  item-value="value"
+                  v-model="gender"
+                  label="Jenis Kelamin"
                   v-validate="'required'"
-                  data-vv-name="birthplace"
-                  label="Tempat Lahir"
-                  :error-messages="errors.collect('birthplace')"></v-text-field>
+                  data-vv-name="gender"
+                  data-vv-as="gender"
+                  single-line
+                  bottom
+                  :error-messages="errors.collect('gender')"
+                ></v-select>
               </v-flex>
             </v-layout>
           </v-container>
@@ -35,8 +41,8 @@
   const customHelptext = {
     en: {
       custom: {
-        birthplace: {
-          required: 'Tempat Lahir harus diisi.'
+        gender: {
+          required: 'Jenis Kelamin Harus diisi.'
         }
       }
     }
@@ -45,8 +51,18 @@
   export default {
     data () {
       return {
-        birthplace: null,
-        dialogBirthplace: false
+        gender: null,
+        dialogGender: false,
+        gender_items: [
+          {
+            value: 1,
+            text: 'Laki-laki'
+          },
+          {
+            value: 2,
+            text: 'Perempuan'
+          }
+        ]
       }
     },
     computed: {
@@ -54,16 +70,16 @@
         user: 'users/current',
         profile: 'profiles/current'
       }),
-      loadDataBirthplace () {
-        if (this.dialogBirthplace) {
+      loadDataGender () {
+        if (this.dialogGender) {
           this.$validator.reset()
-          this.birthplace = this.profile.birth.place
+          this.gender = this.profile.gender
         }
       }
     },
     methods: {
       closeDialogButton () {
-        this.dialogBirthplace = !this.dialogBirthplace
+        this.dialogGender = !this.dialogGender
         this.resetAll()
       },
       postUpdate () {
@@ -72,10 +88,7 @@
             if (result) {
               let data = {
                 id: this.profile._id,
-                birth: {
-                  place: this.birthplace,
-                  day: this.profile.birth.day
-                },
+                gender: this.gender,
                 update: 'profile'
               }
               let params = {}
@@ -83,7 +96,7 @@
               this.$store.dispatch('usersmanagement/patch', [this.user._id, data, params])
                 .then(response => {
                   if (response) {
-                    this.dialogBirthplace = false
+                    this.dialogGender = false
                     this.resetAll()
                   }
                 })
@@ -96,8 +109,8 @@
       }
     },
     created () {
-      this.$root.$on('openDialogBirthplace', () => {
-        this.dialogBirthplace = true
+      this.$root.$on('openDialogGender', () => {
+        this.dialogGender = true
       })
       this.$validator.localize(customHelptext)
     }

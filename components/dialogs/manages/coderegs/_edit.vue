@@ -1,5 +1,5 @@
 <template>
-  <v-layout row justify-center v-bind="closedialogEdit">
+  <v-layout row justify-center>
     <v-dialog v-model="dialogEdit" persistent scrollable max-width="360">
       <v-card v-if="dialogEdit">
         <v-card-title class="headline">Ubah Kode Registrasi</v-card-title>
@@ -14,7 +14,9 @@
                   data-vv-name="email"
                   label="Alamat Email"
                   v-on:blur="checkEmail"
-                  :error-messages="errorMessageEmail"></v-text-field>
+                  :error-messages="errorMessageEmail"
+                  v-on:keyup.enter="postPatched"
+                  ></v-text-field>
               </v-flex>
             </v-layout>
           </v-container>
@@ -23,7 +25,7 @@
           <v-spacer></v-spacer>
           <v-btn flat @click.native="closedialogEditButton">Batal</v-btn>
           <v-btn flat color="blue darken-1"
-            @click.native="postCreated">Simpan</v-btn>
+            @click.native="postPatched">Simpan</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -31,7 +33,7 @@
 </template>
 
 <script>
-  import {mapGetters} from 'vuex'
+  import {mapState, mapGetters} from 'vuex'
   const customHelptext = {
     en: {
       custom: {
@@ -46,18 +48,15 @@
   export default {
     data: () => ({
       dialogEdit: false,
-      doPostEdit: false,
       email: null
     }),
     computed: {
-      ...mapGetters([
-        'coderegs/current'
-      ]),
-      codereg () {
-        if (this['coderegs/current'] !== null) {
-          return this['coderegs/current']
-        }
-      },
+      ...mapState({
+        checkuser: 'checkuser'
+      }),
+      ...mapGetters({
+        codereg: 'coderegsmanagement/current'
+      }),
       loadDataEdit () {
         if (this.dialogEdit) {
           this.$validator.reset()
@@ -65,20 +64,10 @@
         }
       },
       errorMessageEmail () {
-        if (this.$store.state.checkuser.errorOnFind !== null) {
+        if (this.checkuser.errorOnFind !== null) {
           return 'Email telah digunakan.'
         } else {
           return this.errors.collect('email')
-        }
-      },
-      closedialogEdit () {
-        if (this.doPostEdit && !this.$store.state.coderegs.isPatchPending && this.$store.state.coderegs.errorOnPatch === null) {
-          this.doPostEdit = false
-          this.dialogEdit = false
-          this.resetAll()
-        } else if (this.doPostEdit && !this.$store.state.coderegs.isPatchPending && this.$store.state.coderegs.errorOnPatch !== null) {
-          this.doPostEdit = false
-          this.$validator.reset()
         }
       }
     },
@@ -105,22 +94,27 @@
         this.dialogEdit = !this.dialogEdit
         this.resetAll()
       },
-      postCreated () {
+      postPatched () {
         this.$validator.validateAll()
           .then((result) => {
-            if (result && this.$store.state.checkuser.errorOnFind === null) {
+            if (result && this.checkuser.errorOnFind === null) {
               let editCodeReg = {
                 email: this.email
               }
               let params = {}
-              this.$store.dispatch('coderegs/patch', [this.codereg._id, editCodeReg, params])
-              this.doPostEdit = true
+              this.$store.dispatch('coderegsmanagement/patch', [this.codereg._id, editCodeReg, params])
+                .then(response => {
+                  if (response) {
+                    this.dialogEdit = false
+                    this.resetAll()
+                  }
+                })
             }
           })
       },
       resetAll () {
         this.$store.commit('checkuser/clearFindError')
-        this.$store.commit('coderegs/clearPatchError')
+        this.$store.commit('coderegsmanagement/clearPatchError')
         this.$validator.reset()
       }
     },

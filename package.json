@@ -20,7 +20,7 @@
     "feathers-client": "^2.4.0",
     "feathers-hooks": "^2.1.2",
     "feathers-socketio": "^2.0.1",
-    "feathers-vuex": "^1.1.1",
+    "feathers-vuex": "^1.1.4",
     "js-cookie": "^2.2.0",
     "moment": "^2.20.1",
     "node-sass": "^4.7.2",

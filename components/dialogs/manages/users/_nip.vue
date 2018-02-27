@@ -1,19 +1,21 @@
 <template>
   <v-layout row justify-center>
-    <v-dialog v-model="dialogBirthplace" persistent scrollable max-width="360">
-      <v-card v-if="dialogBirthplace">
-        <v-card-title class="headline">Ubah Tempat lahir</v-card-title>
+    <v-dialog v-model="dialogNIP" persistent scrollable max-width="360">
+      <v-card v-if="dialogNIP">
+        <v-card-title class="headline">Ubah NIP</v-card-title>
         <v-card-text style="max-height: 300px;">
           <v-container grid-list-md>
-            <v-layout wrap v-bind="loadDataBirthplace">
+            <v-layout wrap v-bind="loadDataNIP">
               <v-flex xs12>
                 <v-text-field
                   autofocus
-                  v-model="birthplace"
+                  v-on:keyup.enter="postUpdate"
+                  v-model="nip"
                   v-validate="'required'"
-                  data-vv-name="birthplace"
-                  label="Tempat Lahir"
-                  :error-messages="errors.collect('birthplace')"></v-text-field>
+                  data-vv-name="nip"
+                  :mask="maskNIP"
+                  label="NIP"
+                  :error-messages="errorMessageNIP"></v-text-field>
               </v-flex>
             </v-layout>
           </v-container>
@@ -29,14 +31,13 @@
   </v-layout>
 </template>
 
-
 <script>
   import {mapGetters} from 'vuex'
   const customHelptext = {
     en: {
       custom: {
-        birthplace: {
-          required: 'Tempat Lahir harus diisi.'
+        nip: {
+          required: 'NIP harus diisi.'
         }
       }
     }
@@ -45,45 +46,49 @@
   export default {
     data () {
       return {
-        birthplace: null,
-        dialogBirthplace: false
+        dialogNIP: false,
+        maskNIP: '######## ###### # ###',
+        nip: null
       }
     },
     computed: {
       ...mapGetters({
-        user: 'users/current',
-        profile: 'profiles/current'
+        user: 'userapp/current'
       }),
-      loadDataBirthplace () {
-        if (this.dialogBirthplace) {
-          this.$validator.reset()
-          this.birthplace = this.profile.birth.place
+      account: function () {
+        if (typeof this.user !== 'undefined' || this.user !== null) {
+          return this.user
         }
+      },
+      loadDataNIP () {
+        if (this.dialogNIP) {
+          this.$validator.reset()
+          this.nip = this.account.profile.nip
+        }
+      },
+      errorMessageNIP () {
+        return this.errors.collect('nip')
       }
     },
     methods: {
       closeDialogButton () {
-        this.dialogBirthplace = !this.dialogBirthplace
+        this.dialogNIP = !this.dialogNIP
         this.resetAll()
       },
       postUpdate () {
         this.$validator.validateAll()
           .then((result) => {
-            if (result) {
+            if (result && this.$store.state.checkuser.errorOnFind === null) {
               let data = {
-                id: this.profile._id,
-                birth: {
-                  place: this.birthplace,
-                  day: this.profile.birth.day
-                },
+                nip: this.nip,
                 update: 'profile'
               }
               let params = {}
-              this.$store.commit('usersmanagement/clearPatchError')
-              this.$store.dispatch('usersmanagement/patch', [this.user._id, data, params])
+              this.$store.commit('userapp/clearPatchError')
+              this.$store.dispatch('userapp/patch', [this.account._id, data, params])
                 .then(response => {
                   if (response) {
-                    this.dialogBirthplace = false
+                    this.dialogNIP = false
                     this.resetAll()
                   }
                 })
@@ -91,13 +96,15 @@
           })
       },
       resetAll () {
-        this.$store.commit('usersmanagement/clearPatchError')
+        this.password = null
+        this.$store.commit('userapp/clearPatchError')
+        this.$store.commit('userapp/clearCurrent')
         this.$validator.reset()
       }
     },
     created () {
-      this.$root.$on('openDialogBirthplace', () => {
-        this.dialogBirthplace = true
+      this.$root.$on('openDialogManageNIP', () => {
+        this.dialogNIP = true
       })
       this.$validator.localize(customHelptext)
     }

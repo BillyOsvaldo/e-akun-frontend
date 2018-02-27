@@ -1,5 +1,5 @@
 <template>
-  <v-layout row justify-center v-if="account" v-bind="closeDialog">
+  <v-layout row justify-center>
     <v-dialog v-model="dialogFullname" persistent scrollable max-width="360">
       <v-card v-if="dialogFullname">
         <v-card-title class="headline">Ubah Nama Lengkap</v-card-title>
@@ -66,7 +66,6 @@
     data () {
       return {
         dialogFullname: false,
-        doPost: false,
         first_title: null,
         last_title: null,
         first_name: null,
@@ -74,42 +73,31 @@
       }
     },
     computed: {
-      ...mapGetters([
-        'userapp/current'
-      ]),
-      account: function () {
-        return this['userapp/current']
-      },
+      ...mapGetters({
+        user: 'users/current',
+        profile: 'profiles/current'
+      }),
       loadFullname () {
         if (this.dialogFullname) {
           this.$validator.reset()
-          this.first_title = this.account.profile.name.first_title
-          this.last_title = this.account.profile.name.last_title
-          this.first_name = this.account.profile.name.first_name
-          this.last_name = this.account.profile.name.last_name
-        }
-      },
-      closeDialog: function () {
-        if (this.doPost && !this.$store.state.userapp.isPatchPending && this.$store.state.userapp.errorOnPatch === null) {
-          this.doPost = false
-          this.dialogFullname = false
-          this.resetAll()
-        } else if (this.doPost && !this.$store.state.userapp.isPatchPending && this.$store.state.userapp.errorOnPatch !== null) {
-          this.doPost = false
-          this.$validator.reset()
+          this.first_title = this.profile.name.first_title
+          this.last_title = this.profile.name.last_title
+          this.first_name = this.profile.name.first_name
+          this.last_name = this.profile.name.last_name
         }
       }
     },
     methods: {
       closeDialogButton () {
         this.dialogFullname = !this.dialogFullname
+        this.resetAll()
       },
       postUpdate () {
         this.$validator.validateAll()
           .then((result) => {
             if (result) {
               let data = {
-                id: this.account.profile._id,
+                id: this.profile._id,
                 name: {
                   first_title: this.first_title,
                   last_title: this.last_title,
@@ -119,14 +107,19 @@
                 update: 'profile'
               }
               let params = {}
-              this.$store.commit('userapp/clearPatchError')
-              this.$store.dispatch('userapp/patch', [this.account._id, data, params])
-              this.doPost = true
+              this.$store.commit('usersmanagement/clearPatchError')
+              this.$store.dispatch('usersmanagement/patch', [this.user._id, data, params])
+                .then(response => {
+                  if (response) {
+                    this.dialogFullname = false
+                    this.resetAll()
+                  }
+                })
             }
           })
       },
       resetAll () {
-        this.$store.commit('userapp/clearPatchError')
+        this.$store.commit('usersmanagement/clearPatchError')
         this.$validator.reset()
       }
     },

@@ -10,6 +10,10 @@ const socket = io(process.env.HOST_URL_API_SSO, {transports: ['websocket']})
 const app = feathers()
   .configure(hooks())
   .configure(socketio(socket))
-  .configure(auth({ storage: new CookieStorage() }))
+  .configure(auth({ jwtStrategy: 'jwt', cookie: 'feathers-jwt', storage: new CookieStorage({path: '/'}) }))
+
+if (app.passport.getCookie('feathers-jwt') !== null) {
+  app.authenticate()
+}
 
 export default app

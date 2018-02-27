@@ -9,7 +9,12 @@
           :key="item._id"
           style="padding: 16px;"
         >
-          <v-card class="menu-item" flat tile>
+          <v-card
+            class="menu-item"
+            flat
+            tile
+            exact
+            :to="item.to">
             <div class="menu-item-content">
               <v-icon style="font-size: 54px;" :color="item.color">{{item.icon}}</v-icon>
               <h2 style="font-weight: 400;">{{item.name}}</h2>

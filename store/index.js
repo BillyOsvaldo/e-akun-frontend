@@ -18,7 +18,6 @@ export const storeSocket = new Vuex.Store({
   actions,
   plugins: [
     service('addresses'),
-    service('userapp'),
     service('coderegs'),
     service('checkcode', {
       idField: 'code'
@@ -29,13 +28,27 @@ export const storeSocket = new Vuex.Store({
     service('checkuser', {
       idField: 'status'
     }),
-    auth({
-      state: {
-        publicPages: [
-          'signin', 'signup'
-        ]
+    service('users'),
+    service('profiles'),
+    service('postcodes'),
+    service('organizations'),
+    service('roles'),
+    service('permissions'),
+    service('administrators'),
+    service('apps'),
+    service('usersmanagement'),
+    service('coderegsmanagement'),
+    service('organizationsmanagement'),
+    auth(
+      {
+        state: {
+          publicPages: [
+            'signin', 'signup'
+          ]
+        },
+        userService: 'users'
       }
-    }),
+    ),
     service('menuapp')
   ]
 })

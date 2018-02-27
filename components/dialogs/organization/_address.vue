@@ -9,7 +9,7 @@
               <v-flex xs12>
                 <v-text-field
                   autofocus
-                  v-model="temp_profile.detail"
+                  v-model="temp_organization.detail"
                   v-validate="'required'"
                   data-vv-name="detail"
                   label="Alamat Lengkap"
@@ -30,7 +30,7 @@
               </v-flex>
               <v-flex xs12>
                 <v-text-field
-                  v-model="temp_profile.postcode"
+                  v-model="temp_organization.postcode"
                   label="Kode Pos"
                   disabled></v-text-field>
               </v-flex>
@@ -72,7 +72,7 @@ export default {
       address: null,
       cacheItems: true,
       tempItems: [],
-      temp_profile: {
+      temp_organization: {
         detail: '',
         postcode: ''
       }
@@ -80,18 +80,17 @@ export default {
   },
   computed: {
     ...mapGetters({
-      user: 'users/current',
       postcodes: 'addresses/list',
-      profile: 'profiles/current',
+      organization: 'organizations/current',
       postcodeLists: 'postcodes/list'
     }),
     loadDataAddress () {
       if (this.dialogAddress) {
-        this.temp_profile.detail = this.profile.address.detail
-        if (typeof this.profile.address.postcode !== 'undefined') {
-          let _postcode = this.postcodeLists.find((item) => item._id === this.profile.address.postcode)
+        this.temp_organization.detail = this.organization.address.detail
+        if (typeof this.organization.address.postcode !== 'undefined') {
+          let _postcode = this.postcodeLists.find((item) => item._id === this.organization.address.postcode)
           if (typeof _postcode !== 'undefined') {
-            this.temp_profile.postcode = _postcode.kodepos
+            this.temp_organization.postcode = _postcode.kodepos
           }
         }
       }
@@ -142,14 +141,14 @@ export default {
     address (val) {
       if (typeof val === 'string') {
         let detail = this.tempItems.find((item) => item._id === val)
-        this.temp_profile.postcode = detail.kodepos
+        this.temp_organization.postcode = detail.kodepos
       }
     }
   },
   methods: {
     createdListDefaultItem () {
-      if (typeof this.profile.address.postcode !== 'undefined') {
-        let detail = this.postcodeLists.find((item) => item._id === this.profile.address.postcode)
+      if (typeof this.organization.address.postcode !== 'undefined') {
+        let detail = this.postcodeLists.find((item) => item._id === this.organization.address.postcode)
         let item = detail.provinsi + ', ' + detail.kotakab + ', ' + detail.kecamatan + ', ' + detail.kelurahan
         let _data = {
           _id: detail._id,
@@ -169,19 +168,18 @@ export default {
         .then((result) => {
           if (result) {
             let data = {
-              id: this.profile._id,
               address: {
-                detail: this.temp_profile.detail,
+                detail: this.temp_organization.detail,
                 postcode: this.address
-              },
-              update: 'profile'
+              }
             }
             let params = {}
             console.log(data)
-            this.$store.commit('usersmanagement/clearPatchError')
-            this.$store.dispatch('usersmanagement/patch', [this.user._id, data, params])
+            this.$store.commit('organizationsmanagement/clearPatchError')
+            this.$store.dispatch('organizationsmanagement/patch', [this.organization._id, data, params])
               .then(response => {
-                this.$store.dispatch('postcodes/get', response.profile.address.postcode)
+                console.log(response)
+                this.$store.dispatch('postcodes/get', response.address.postcode)
                   .then(response => {
                     this.dialogAddress = false
                     this.resetAll()
@@ -191,12 +189,12 @@ export default {
         })
     },
     resetAll () {
-      this.$store.commit('usersmanagement/clearPatchError')
+      this.$store.commit('organizationsmanagement/clearPatchError')
       this.$validator.reset()
     }
   },
   created () {
-    this.$root.$on('openDialogAddress', () => {
+    this.$root.$on('openDialogOrgAddress', () => {
       this.dialogAddress = true
       this.createdListDefaultItem()
     })

@@ -1,5 +1,5 @@
 <template>
-  <v-layout row justify-center v-if="account" v-bind="closeDialog">
+  <v-layout row justify-center>
     <v-dialog v-model="dialogPhone" persistent scrollable max-width="360">
       <v-card v-if="dialogPhone">
         <v-card-title class="headline">Ubah No. Telepon</v-card-title>
@@ -64,7 +64,6 @@ export default {
   data () {
     return {
       dialogPhone: false,
-      doPost: false,
       mask: '#### - #### - ####',
       phone_1: null,
       phone_2: null,
@@ -72,33 +71,22 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      'userapp/current'
-    ]),
-    account: function () {
-      return this['userapp/current']
-    },
+    ...mapGetters({
+      user: 'users/current',
+      profile: 'profiles/current'
+    }),
     loadDataPhone () {
       if (this.dialogPhone) {
-        this.phone_1 = (typeof this.account.profile.phone.lists[0] === 'undefined') ? '' : this.account.profile.phone.lists[0]
-        this.phone_2 = (typeof this.account.profile.phone.lists[1] === 'undefined') ? '' : this.account.profile.phone.lists[1]
-        this.phone_3 = (typeof this.account.profile.phone.lists[2] === 'undefined') ? '' : this.account.profile.phone.lists[2]
-      }
-    },
-    closeDialog: function () {
-      if (this.doPost && !this.$store.state.userapp.isPatchPending && this.$store.state.userapp.errorOnPatch === null) {
-        this.doPost = false
-        this.dialogPhone = false
-        this.resetAll()
-      } else if (this.doPost && !this.$store.state.userapp.isPatchPending && this.$store.state.userapp.errorOnPatch !== null) {
-        this.doPost = false
-        this.$validator.reset()
+        this.phone_1 = (typeof this.profile.phone.lists[0] === 'undefined') ? '' : this.profile.phone.lists[0]
+        this.phone_2 = (typeof this.profile.phone.lists[1] === 'undefined') ? '' : this.profile.phone.lists[1]
+        this.phone_3 = (typeof this.profile.phone.lists[2] === 'undefined') ? '' : this.profile.phone.lists[2]
       }
     }
   },
   methods: {
     closeDialogButton () {
       this.dialogPhone = !this.dialogPhone
+      this.resetAll()
     },
     postUpdate () {
       this.$validator.validateAll()
@@ -118,22 +106,27 @@ export default {
             }
 
             let data = {
-              id: this.account.profile._id,
+              id: this.profile._id,
               phone: {
                 lists: phones,
-                primary_key: this.account.profile.phone.primary_key
+                primary_key: this.profile.phone.primary_key
               },
               update: 'profile'
             }
             let params = {}
-            this.$store.commit('userapp/clearPatchError')
-            this.$store.dispatch('userapp/patch', [this.account._id, data, params])
-            this.doPost = true
+            this.$store.commit('usersmanagement/clearPatchError')
+            this.$store.dispatch('usersmanagement/patch', [this.user._id, data, params])
+              .then(response => {
+                if (response) {
+                  this.dialogPhone = false
+                  this.resetAll()
+                }
+              })
           }
         })
     },
     resetAll () {
-      this.$store.commit('userapp/clearPatchError')
+      this.$store.commit('usersmanagement/clearPatchError')
       this.$validator.reset()
     }
   },

@@ -35,8 +35,11 @@ export function nipFormat (nip) {
   return (nip === '') ? '-' : nip
 }
 
-export function addressFormat (data) {
-  let _address = data.detail + ', ' + data.postcode.kelurahan
+export function addressFormat (address, postcode) {
+  let _address = ''
+  if (typeof postcode !== 'undefined') {
+    _address = address.detail + ', ' + postcode.kelurahan
+  }
   return _address
 }
 

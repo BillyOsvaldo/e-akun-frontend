@@ -45,9 +45,12 @@
         <v-list-tile-sub-title>{{genderText}}</v-list-tile-sub-title>
       </v-list-tile-content>
       <v-list-tile-action>
-        <v-btn icon disabled>
-          <v-icon>https</v-icon>
-        </v-btn>
+        <v-tooltip top>
+          <v-btn slot="activator" flat icon @click.native="$root.$emit('openDialogGender')">
+            <v-icon>edit</v-icon>
+          </v-btn>
+        <span>Ubah Jenis Kelamin</span>
+      </v-tooltip>
       </v-list-tile-action>
     </v-list-tile>
     <v-list-tile avatar>
@@ -70,9 +73,12 @@
         <v-list-tile-sub-title>{{birthdayText}}</v-list-tile-sub-title>
       </v-list-tile-content>
       <v-list-tile-action>
-        <v-btn icon disabled>
-          <v-icon>https</v-icon>
-        </v-btn>
+        <v-tooltip top>
+          <v-btn slot="activator" flat icon  @click.native="$root.$emit('openDialogBirthday')">
+            <v-icon>edit</v-icon>
+          </v-btn>
+          <span>Ubah Tanggal Lahir</span>
+        </v-tooltip>
       </v-list-tile-action>
     </v-list-tile>
     <v-list-tile avatar>
@@ -100,35 +106,33 @@
 
 <script>
   import {mapGetters} from 'vuex'
-  import {nameFormat, nipFormat, genderFormat, addressFormat, birthdayFormat, setValueText, objectFormat} from '~/utils/format'
+  import {nameFormat, nipFormat, genderFormat, addressFormat, birthdayFormat, objectFormat} from '~/utils/format'
   export default {
     computed: {
-      ...mapGetters([
-        'userapp/current'
-      ]),
-      profiles: function () {
-        return setValueText(this['userapp/current'], 'profile', true)
-      },
+      ...mapGetters({
+        profiles: 'profiles/current',
+        postcodes: 'postcodes/list'
+      }),
       fullnameText: function () {
-        return (this.profiles === '') ? '' : nameFormat(this.profiles.name)
+        return (typeof this.profiles === 'undefined') ? '' : nameFormat(this.profiles.name)
       },
       nipText: function () {
-        return (this.profiles === '') ? '-' : nipFormat(this.profiles.nip)
+        return (typeof this.profiles === 'undefined') ? '-' : nipFormat(this.profiles.nip)
       },
       genderText: function () {
-        return (this.profiles === '') ? '' : genderFormat(this.profiles.gender)
+        return (typeof this.profiles === 'undefined') ? '' : genderFormat(this.profiles.gender)
       },
       addressText: function () {
-        return (this.profiles === '') ? '' : addressFormat(this.profiles.address)
+        return (typeof this.profiles === 'undefined' && typeof this.postcodes === 'undefined') ? '' : addressFormat(this.profiles.address, this.postcodes.find((item) => item._id === this.profiles.address.postcode))
       },
       birthdayText: function () {
-        return (this.profiles === '') ? '' : birthdayFormat(objectFormat(this.profiles.birth, 'day'))
+        return (typeof this.profiles === 'undefined') ? '' : birthdayFormat(objectFormat(this.profiles.birth, 'day'))
       },
       birthplaceText: function () {
-        return (this.profiles === '') ? '' : objectFormat(this.profiles.birth, 'place')
+        return (typeof this.profiles === 'undefined') ? '' : objectFormat(this.profiles.birth, 'place')
       },
       phoneList: function () {
-        return (this.profiles === '') ? '' : this.profiles.phone
+        return (typeof this.profiles === 'undefined') ? '' : this.profiles.phone
       }
     }
   }

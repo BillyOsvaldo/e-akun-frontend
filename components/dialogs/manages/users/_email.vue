@@ -17,16 +17,6 @@
                   label="Alamat Email"
                   :error-messages="errorMessageEmail"></v-text-field>
               </v-flex>
-              <v-flex xs12>
-                <v-text-field
-                  v-on:keyup.enter="postUpdate"
-                  v-model="password"
-                  type="password"
-                  v-validate="'required'"
-                  data-vv-name="password"
-                  label="Kata Sandi"
-                  :error-messages="errorMessagePassword"></v-text-field>
-              </v-flex>
             </v-layout>
           </v-container>
         </v-card-text>
@@ -49,9 +39,6 @@
         email: {
           required: 'Alamat Email harus diisi.',
           email: 'Format Email harus benar.'
-        },
-        password: {
-          required: 'Kata Sandi harus diisi.'
         }
       }
     }
@@ -61,22 +48,20 @@
     data () {
       return {
         dialogEmail: false,
-        email: null,
-        password: null
+        email: null
       }
     },
     computed: {
       ...mapState({
-        checkuser: 'checkuser',
-        user: 'usersmanagement'
+        checkuser: 'checkuser'
       }),
       ...mapGetters({
-        account: 'users/current'
+        user: 'usersmanagement/current'
       }),
       loadDataEmail () {
         if (this.dialogEmail) {
           this.$validator.reset()
-          this.email = this.account.email
+          this.email = this.user.email
         }
       },
       errorMessageEmail () {
@@ -85,31 +70,19 @@
         } else {
           return this.errors.collect('email')
         }
-      },
-      errorMessagePassword: function () {
-        if (this.user.errorOnPatch !== null) {
-          return 'Kata Sandi tidak benar.'
-        } else {
-          return this.errors.collect('password')
-        }
       }
     },
     watch: {
       email (val) {
-        if (val !== null && val.length === 0) {
+        if (val.length === 0) {
           this.$store.commit('checkuser/clearFindError')
-        }
-      },
-      password (val) {
-        if (val !== null && val.length === 0) {
-          this.$store.commit('usersmanagement/clearPatchError')
         }
       }
     },
     methods: {
       checkEmail () {
         this.$store.commit('checkuser/clearFindError')
-        if (this.email && this.email !== this.account.email) {
+        if (this.email && this.email !== this.user.email) {
           let params = {
             query: {
               email: this.email
@@ -128,15 +101,14 @@
             if (result && this.checkuser.errorOnFind === null) {
               let data = {
                 email: this.email,
-                comparepassword: this.password,
-                update: 'self'
+                update: 'account'
               }
               let params = {}
               this.$store.commit('usersmanagement/clearPatchError')
-              this.$store.dispatch('usersmanagement/patch', [this.account._id, data, params])
+              this.$store.dispatch('usersmanagement/patch', [this.user._id, data, params])
                 .then(response => {
-                  console.log(response)
                   if (response) {
+                    console.log(response)
                     this.dialogEmail = false
                     this.resetAll()
                   }
@@ -147,11 +119,12 @@
       resetAll () {
         this.password = null
         this.$store.commit('usersmanagement/clearPatchError')
+        this.$store.commit('usersmanagement/clearCurrent')
         this.$validator.reset()
       }
     },
     created () {
-      this.$root.$on('openDialogEmail', () => {
+      this.$root.$on('openDialogManageEmail', () => {
         this.dialogEmail = true
       })
       this.$validator.localize(customHelptext)
