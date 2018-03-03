@@ -51,6 +51,10 @@ export function coderegStatusFormat (data) {
   return (data) ? 'Sudah Terdaftar' : 'Belum Terdaftar'
 }
 
+export function organizationStatusFormat (data) {
+  return (data) ? 'Aktif' : 'Tidak Aktif'
+}
+
 export function createdAtFormat (date) {
   return moment(date).format('DD MMMM YYYY')
 }

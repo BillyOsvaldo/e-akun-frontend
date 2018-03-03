@@ -174,11 +174,9 @@ export default {
               }
             }
             let params = {}
-            console.log(data)
             this.$store.commit('organizationsmanagement/clearPatchError')
             this.$store.dispatch('organizationsmanagement/patch', [this.organization._id, data, params])
               .then(response => {
-                console.log(response)
                 this.$store.dispatch('postcodes/get', response.address.postcode)
                   .then(response => {
                     this.dialogAddress = false

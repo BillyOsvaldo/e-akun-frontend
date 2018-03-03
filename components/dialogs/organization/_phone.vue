@@ -18,7 +18,6 @@
                   :error-messages="errors.collect('phone')">
                 ></v-text-field>
               </v-flex>
-              </v-flex>
             </v-layout>
           </v-container>
         </v-card-text>
@@ -76,11 +75,9 @@ export default {
               phone: this.phone
             }
             let params = {}
-            console.log(data)
             this.$store.commit('organizationsmanagement/clearPatchError')
             this.$store.dispatch('organizationsmanagement/patch', [this.organization._id, data, params])
               .then(response => {
-                console.log(response)
                 if (response) {
                   this.dialogPhone = false
                   this.resetAll()
