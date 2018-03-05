@@ -10,7 +10,7 @@
 
 <script>
 import {mapState, mapGetters} from 'vuex'
-// import api from '../api/feathers-client'
+import api from '../api/feathers-client'
 import loader from '../components/apps/_loader'
 import flash from '../components/apps/_flash'
 import toolbarnav from '../components/apps/_toolbar_nav'
@@ -101,8 +101,16 @@ export default {
               this.loadDataUser(user)
             }
           }).catch(e => {
-            console.error('Authentication error', e)
-            // Show login page
+            // console.error('Authentication error', e)
+            // Load auth again :D
+            api.authenticate().then(response => {
+              this.$store.dispatch('users/get', this.auth.payload.userId).then((user) => {
+                // JWT authentication successful
+                if (user !== null && this.auth.userService) {
+                  this.loadDataUser(user)
+                }
+              })
+            })
           })
         }
       }
