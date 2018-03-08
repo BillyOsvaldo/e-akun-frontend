@@ -40,6 +40,7 @@ export const storeSocket = new Vuex.Store({
     service('coderegsmanagement'),
     service('organizationsmanagement'),
     service('appsmanagement'),
+    service('permissionsmanagement'),
     auth(
       {
         state: {

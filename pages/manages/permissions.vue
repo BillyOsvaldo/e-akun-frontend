@@ -1,18 +1,18 @@
 <template>
-  <div class="organization-content" v-resize="onResize" style="background: #fff;">
+  <div class="permission-content" v-resize="onResize" style="background: #fff;">
     <v-data-table
       :headers="headers"
       :items="items"
       hide-actions
-      class="organization"
+      class="permission"
       id="scroll-target"
       :pagination.sync="pagination"
       v-bind="loadData + loadNextPage"
     >
       <template slot="items" slot-scope="props">
-        <td style="font-weight: 500;">{{ props.item.name }}</td>
-        <td class="text-xs-center">{{ props.item.email }}</td>
-        <td class="text-xs-center">{{ statusFormat(props.item.status) }}</td>
+        <td style="font-weight: 500;">{{ props.item._id }}</td>
+        <td class="text-xs-center">{{ props.item.app.name }}</td>
+        <td class="text-xs-center">{{ props.item.administrator.name }}</td>
         <td class="text-xs-center">
           <div>
             <v-tooltip
@@ -39,7 +39,7 @@
         bottom
         right
         fab
-        @click.native="$root.$emit('openDialogAddOrg')"
+        @click.native="$root.$emit('openDialogAddPerm')"
       >
         <v-icon>add</v-icon>
       </v-btn>
@@ -51,10 +51,9 @@
 
 <script>
 import {mapState, mapGetters} from 'vuex'
-import dialogAdd from '~/components/dialogs/manages/organizations/_add'
+import dialogAdd from '~/components/dialogs/manages/permissions/_add'
 import dialogEdit from '~/components/dialogs/manages/organizations/_edit'
 import {generateTable, resizeTable, loadData} from '~/utils/datatable'
-import {organizationStatusFormat} from '~/utils/format'
 export default {
   data: () => ({
     dialog: false,
@@ -68,13 +67,13 @@ export default {
       y: 0
     },
     headers: [
-      { text: 'Nama', align: 'left', value: 'name' },
-      { text: 'Email', value: 'email', align: 'center', sortable: false },
-      { text: 'Status', value: 'status', sortable: false, align: 'center' },
+      { text: 'ID Permission', align: 'left', value: '_id' },
+      { text: 'Nama Aplikasi', align: 'center', value: 'app.name' },
+      { text: 'Jenis Administrator', value: 'administrator.name', align: 'center', sortable: false },
       { text: '', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
-      sortBy: 'name',
+      sortBy: '_id',
       rowsPerPage: -1,
       descending: true
     },
@@ -89,16 +88,16 @@ export default {
   },
   computed: {
     ...mapState({
-      organizations: 'organizationsmanagement'
+      permissions: 'permissionsmanagement'
     }),
     ...mapGetters({
-      organizationsList: 'organizationsmanagement/list'
+      permissionsList: 'permissionsmanagement/list'
     }),
     loadData () {
-      if (typeof this.organizationsList !== 'undefined') {
-        this.items = this.organizationsList
+      if (typeof this.permissionsList !== 'undefined') {
+        this.items = this.permissionsList
         if (this.items.length > 0 && this.tableCreated) {
-          loadData(this, 'organization', this.items.length)
+          loadData(this, 'permission', this.items.length)
         }
       }
     },
@@ -107,7 +106,7 @@ export default {
     }
   },
   created () {
-    this.$store.commit('organizationsmanagement/clearAll')
+    this.$store.commit('permissionsmanagement/clearAll')
     this.initialize()
   },
   watch: {
@@ -123,7 +122,7 @@ export default {
               $sort: this.sortValue
             }
           }
-          this.$store.dispatch('organizationsmanagement/find', params)
+          this.$store.dispatch('permissionsmanagement/find', params)
         }
       }
     },
@@ -131,25 +130,25 @@ export default {
   },
   methods: {
     onResize () {
-      resizeTable(this, window, 'organization')
+      resizeTable(this, window, 'permission')
     },
     initialize () {
       let params = {
         query: {}
       }
-      this.$store.dispatch('organizationsmanagement/find', params)
+      this.$store.dispatch('permissionsmanagement/find', params)
     },
     getNextPage () {
       if (!this.scrollBottom) {
         this.nextPage = false
       }
 
-      if (this.scrollBottom && !this.nextPage && this.items.length < this.organizations.pagination.default.total) {
+      if (this.scrollBottom && !this.nextPage && this.items.length < this.permissions.pagination.default.total) {
         this.nextPage = true
         this.skipPage++
         let skipValue = this.skipPage * 10
-        if (skipValue > this.organizations.pagination.default.total) {
-          skipValue = this.organizations.pagination.default.total
+        if (skipValue > this.permissions.pagination.default.total) {
+          skipValue = this.permissions.pagination.default.total
         }
         let params = {
           query: {
@@ -157,29 +156,23 @@ export default {
             $skip: skipValue
           }
         }
-        this.$store.dispatch('organizationsmanagement/find', params)
+        this.$store.dispatch('permissionsmanagement/find', params)
       }
     },
-    statusFormat (item) {
-      return organizationStatusFormat(item)
-    },
     editItem (item) {
-      this.$store.commit('organizationsmanagement/setCurrent', item)
-      this.$store.dispatch('postcodes/get', item.address.postcode)
-        .then(response => {
-          this.$root.$emit('openDialogEditOrg')
-        })
+      this.$store.commit('permissionsmanagement/setCurrent', item)
+      this.$root.$emit('openDialogEditOrg')
     }
   },
   mounted () {
-    this.$store.dispatch('setNavigationTitle', 'Manajemen Organisasi')
-    generateTable(this, window, 'organization')
+    this.$store.dispatch('setNavigationTitle', 'Izin Aplikasi')
+    generateTable(this, window, 'permission')
   }
 }
 </script>
 
 <style lang="sass">
-  .organization
+  .permission
     position: relative
     zoom: 1
     min-width: 1000px

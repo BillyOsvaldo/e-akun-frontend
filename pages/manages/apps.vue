@@ -10,6 +10,7 @@
       v-bind="loadData + loadNextPage"
     >
       <template slot="items" slot-scope="props">
+        <td style="font-weight: 500;">{{ props.item._id }}</td>
         <td style="font-weight: 500;">{{ props.item.name }}</td>
         <td class="text-xs-left">{{ props.item.url }}</td>
         <td class="text-xs-center">{{ statusFormat(props.item.status) }}</td>
@@ -68,6 +69,7 @@ export default {
       y: 0
     },
     headers: [
+      { text: 'ID Aplikasi', align: 'left', value: '_id' },
       { text: 'Nama', align: 'left', value: 'name' },
       { text: 'URL', value: 'url', sortable: false, align: 'left' },
       { text: 'Status', value: 'status', sortable: false, align: 'center' },
