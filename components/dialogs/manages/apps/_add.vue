@@ -118,13 +118,6 @@ export default {
         _output = []
       }
       return _output
-    },
-    errorMessageEmail () {
-      if (this.checkuser.errorOnFind !== null) {
-        return 'Email telah digunakan.'
-      } else {
-        return this.errors.collect('email')
-      }
     }
   },
   methods: {

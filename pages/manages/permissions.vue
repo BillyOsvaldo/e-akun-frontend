@@ -1,32 +1,18 @@
 <template>
-  <div class="apps-content" v-resize="onResize" style="background: #fff;">
+  <div class="permissions-content" v-resize="onResize" style="background: #fff;">
     <v-data-table
       :headers="headers"
       :items="items"
       hide-actions
-      class="apps"
+      class="permissions"
       id="scroll-target"
       :pagination.sync="pagination"
       v-bind="loadData + loadNextPage"
     >
       <template slot="items" slot-scope="props">
-        <td style="font-weight: 500;">{{ props.item._id }}</td>
-        <td style="font-weight: 500;">{{ props.item.name }}</td>
-        <td class="text-xs-left">{{ props.item.url }}</td>
-        <td class="text-xs-center">{{ statusFormat(props.item.status) }}</td>
-        <td class="text-xs-center">
-          <div>
-            <v-tooltip
-              top
-              >
-              <v-btn
-                slot="activator" icon class="mx-0" @click.native="editItem(props.item)">
-                <v-icon color="grey darken-1">edit</v-icon>
-              </v-btn>
-              <span>Ubah</span>
-            </v-tooltip>
-          </div>
-        </td>
+        <td class="text-xs-left">{{ props.item._id }}</td>
+        <td style="font-weight: 500;">{{ (props.item.app === null) ? 'Semua Aplikasi' : props.item.app.name }}</td>
+        <td class="text-xs-left">{{ props.item.administrator.name }}</td>
       </template>
       <template slot="no-data">
         <span>Belum ada data.</span>
@@ -40,22 +26,19 @@
         bottom
         right
         fab
-        @click.native="$root.$emit('openDialogAddApps')"
+        @click.native="$root.$emit('openDialogAddPermissions')"
       >
         <v-icon>add</v-icon>
       </v-btn>
     </v-fab-transition>
     <dialogAdd/>
-    <dialogEdit/>
   </div>
 </template>
 
 <script>
 import {mapState, mapGetters} from 'vuex'
-import dialogAdd from '~/components/dialogs/manages/apps/_add'
-import dialogEdit from '~/components/dialogs/manages/apps/_edit'
+import dialogAdd from '~/components/dialogs/manages/permissions/_add'
 import {generateTable, resizeTable, loadData} from '~/utils/datatable'
-import {appStatusFormat} from '~/utils/format'
 export default {
   data: () => ({
     dialog: false,
@@ -69,16 +52,14 @@ export default {
       y: 0
     },
     headers: [
-      { text: 'ID Aplikasi', align: 'left', value: '_id' },
-      { text: 'Nama', align: 'left', value: 'name' },
-      { text: 'URL', value: 'url', sortable: false, align: 'left' },
-      { text: 'Status', value: 'status', sortable: false, align: 'center' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'ID Permissions', align: 'left', value: 'app._id' },
+      { text: 'Aplikasi', align: 'left', value: 'app.name' },
+      { text: 'Administrator', value: 'administrator.name', sortable: false, align: 'left' }
     ],
     pagination: {
-      sortBy: 'name',
+      sortBy: 'app.name',
       rowsPerPage: -1,
-      descending: true
+      ascending: true
     },
     items: [],
     doResendEmail: false,
@@ -86,21 +67,20 @@ export default {
     textSnackbar: ''
   }),
   components: {
-    dialogAdd,
-    dialogEdit
+    dialogAdd
   },
   computed: {
     ...mapState({
-      apps: 'appsmanagement'
+      permissionsmanagement: 'permissionsmanagement'
     }),
     ...mapGetters({
-      appsList: 'appsmanagement/list'
+      permissionsList: 'permissionsmanagement/list'
     }),
     loadData () {
-      if (typeof this.appsList !== 'undefined') {
-        this.items = this.appsList
+      if (typeof this.permissionsList !== 'undefined') {
+        this.items = this.permissionsList
         if (this.items.length > 0 && this.tableCreated) {
-          loadData(this, 'apps', this.items.length)
+          loadData(this, 'permissions', this.items.length)
         }
       }
     },
@@ -109,7 +89,7 @@ export default {
     }
   },
   created () {
-    this.$store.commit('appsmanagement/clearAll')
+    this.$store.commit('permissionsmanagement/clearAll')
     this.initialize()
   },
   watch: {
@@ -125,7 +105,7 @@ export default {
               $sort: this.sortValue
             }
           }
-          this.$store.dispatch('appsmanagement/find', params)
+          this.$store.dispatch('permissionsmanagement/find', params)
         }
       }
     },
@@ -133,25 +113,24 @@ export default {
   },
   methods: {
     onResize () {
-      resizeTable(this, window, 'apps')
+      resizeTable(this, window, 'permissions')
     },
     initialize () {
       let params = {
         query: {}
       }
-      this.$store.dispatch('appsmanagement/find', params)
+      this.$store.dispatch('permissionsmanagement/find', params)
     },
     getNextPage () {
       if (!this.scrollBottom) {
         this.nextPage = false
       }
-
-      if (this.scrollBottom && !this.nextPage && this.items.length < this.apps.pagination.default.total) {
+      if (this.scrollBottom && !this.nextPage && this.items.length < this.permissionsmanagement.pagination.default.total) {
         this.nextPage = true
         this.skipPage++
         let skipValue = this.skipPage * 10
-        if (skipValue > this.apps.pagination.default.total) {
-          skipValue = this.apps.pagination.default.total
+        if (skipValue > this.permissionsmanagement.pagination.default.total) {
+          skipValue = this.permissionsmanagement.pagination.default.total
         }
         let params = {
           query: {
@@ -159,26 +138,19 @@ export default {
             $skip: skipValue
           }
         }
-        this.$store.dispatch('appsmanagement/find', params)
+        this.$store.dispatch('permissionsmanagement/find', params)
       }
-    },
-    statusFormat (item) {
-      return appStatusFormat(item)
-    },
-    editItem (item) {
-      this.$store.commit('appsmanagement/setCurrent', item)
-      this.$root.$emit('openDialogEditApps')
     }
   },
   mounted () {
-    this.$store.dispatch('setNavigationTitle', 'Manajemen Aplikasi')
-    generateTable(this, window, 'apps')
+    this.$store.dispatch('setNavigationTitle', 'Daftar Izin Aplikasi')
+    generateTable(this, window, 'permissions')
   }
 }
 </script>
 
 <style lang="sass">
-  .apps
+  .permissions
     position: relative
     zoom: 1
     min-width: 1000px
