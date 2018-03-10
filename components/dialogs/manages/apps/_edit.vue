@@ -111,13 +111,6 @@ export default {
         this.url = (typeof this.apps.url === 'undefined') ? '' : this.apps.url
         this.status = (typeof this.apps.status === 'undefined') ? true : this.apps.status
       }
-    },
-    errorMessageEmail () {
-      if (this.checkuser.errorOnFind !== null) {
-        return 'Email telah digunakan.'
-      } else {
-        return this.errors.collect('email')
-      }
     }
   },
   methods: {
