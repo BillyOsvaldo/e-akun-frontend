@@ -1,31 +1,18 @@
 <template>
-  <div class="permission-content" v-resize="onResize" style="background: #fff;">
+  <div class="permissions-content" v-resize="onResize" style="background: #fff;">
     <v-data-table
       :headers="headers"
       :items="items"
       hide-actions
-      class="permission"
+      class="permissions"
       id="scroll-target"
       :pagination.sync="pagination"
       v-bind="loadData + loadNextPage"
     >
       <template slot="items" slot-scope="props">
-        <td style="font-weight: 500;">{{ props.item._id }}</td>
-        <td class="text-xs-center">{{ props.item.app.name }}</td>
-        <td class="text-xs-center">{{ props.item.administrator.name }}</td>
-        <td class="text-xs-center">
-          <div>
-            <v-tooltip
-              top
-              >
-              <v-btn
-                slot="activator" icon class="mx-0" @click.native="editItem(props.item)">
-                <v-icon color="grey darken-1">edit</v-icon>
-              </v-btn>
-              <span>Ubah</span>
-            </v-tooltip>
-          </div>
-        </td>
+        <td class="text-xs-left">{{ props.item._id }}</td>
+        <td style="font-weight: 500;">{{ (props.item.app === null) ? 'Semua Aplikasi' : props.item.app.name }}</td>
+        <td class="text-xs-left">{{ props.item.administrator.name }}</td>
       </template>
       <template slot="no-data">
         <span>Belum ada data.</span>
@@ -39,20 +26,18 @@
         bottom
         right
         fab
-        @click.native="$root.$emit('openDialogAddPerm')"
+        @click.native="$root.$emit('openDialogAddPermissions')"
       >
         <v-icon>add</v-icon>
       </v-btn>
     </v-fab-transition>
     <dialogAdd/>
-    <dialogEdit/>
   </div>
 </template>
 
 <script>
 import {mapState, mapGetters} from 'vuex'
 import dialogAdd from '~/components/dialogs/manages/permissions/_add'
-import dialogEdit from '~/components/dialogs/manages/organizations/_edit'
 import {generateTable, resizeTable, loadData} from '~/utils/datatable'
 export default {
   data: () => ({
@@ -67,15 +52,14 @@ export default {
       y: 0
     },
     headers: [
-      { text: 'ID Permission', align: 'left', value: '_id' },
-      { text: 'Nama Aplikasi', align: 'center', value: 'app.name' },
-      { text: 'Jenis Administrator', value: 'administrator.name', align: 'center', sortable: false },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'ID Permissions', align: 'left', value: 'app._id' },
+      { text: 'Aplikasi', align: 'left', value: 'app.name' },
+      { text: 'Administrator', value: 'administrator.name', sortable: false, align: 'left' }
     ],
     pagination: {
-      sortBy: '_id',
+      sortBy: 'app.name',
       rowsPerPage: -1,
-      descending: true
+      ascending: true
     },
     items: [],
     doResendEmail: false,
@@ -83,12 +67,11 @@ export default {
     textSnackbar: ''
   }),
   components: {
-    dialogAdd,
-    dialogEdit
+    dialogAdd
   },
   computed: {
     ...mapState({
-      permissions: 'permissionsmanagement'
+      permissionsmanagement: 'permissionsmanagement'
     }),
     ...mapGetters({
       permissionsList: 'permissionsmanagement/list'
@@ -97,7 +80,7 @@ export default {
       if (typeof this.permissionsList !== 'undefined') {
         this.items = this.permissionsList
         if (this.items.length > 0 && this.tableCreated) {
-          loadData(this, 'permission', this.items.length)
+          loadData(this, 'permissions', this.items.length)
         }
       }
     },
@@ -130,7 +113,7 @@ export default {
   },
   methods: {
     onResize () {
-      resizeTable(this, window, 'permission')
+      resizeTable(this, window, 'permissions')
     },
     initialize () {
       let params = {
@@ -142,13 +125,12 @@ export default {
       if (!this.scrollBottom) {
         this.nextPage = false
       }
-
-      if (this.scrollBottom && !this.nextPage && this.items.length < this.permissions.pagination.default.total) {
+      if (this.scrollBottom && !this.nextPage && this.items.length < this.permissionsmanagement.pagination.default.total) {
         this.nextPage = true
         this.skipPage++
         let skipValue = this.skipPage * 10
-        if (skipValue > this.permissions.pagination.default.total) {
-          skipValue = this.permissions.pagination.default.total
+        if (skipValue > this.permissionsmanagement.pagination.default.total) {
+          skipValue = this.permissionsmanagement.pagination.default.total
         }
         let params = {
           query: {
@@ -158,21 +140,17 @@ export default {
         }
         this.$store.dispatch('permissionsmanagement/find', params)
       }
-    },
-    editItem (item) {
-      this.$store.commit('permissionsmanagement/setCurrent', item)
-      this.$root.$emit('openDialogEditOrg')
     }
   },
   mounted () {
-    this.$store.dispatch('setNavigationTitle', 'Izin Aplikasi')
-    generateTable(this, window, 'permission')
+    this.$store.dispatch('setNavigationTitle', 'Daftar Izin Aplikasi')
+    generateTable(this, window, 'permissions')
   }
 }
 </script>
 
 <style lang="sass">
-  .permission
+  .permissions
     position: relative
     zoom: 1
     min-width: 1000px

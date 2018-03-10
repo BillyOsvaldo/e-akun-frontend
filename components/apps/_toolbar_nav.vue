@@ -30,7 +30,7 @@
       </v-list>
       <v-list class="pt-0">
         <v-list-tile
-        v-for="item in $store.getters['menuapp/list']"
+        v-for="item in menuList"
         :key="item._id"
         ripple
         router
@@ -50,10 +50,22 @@
 </template>
 
 <script>
+  import {mapGetters} from 'vuex'
   export default {
     data () {
       return {
         isOpen: null
+      }
+    },
+    computed: {
+      ...mapGetters({
+        menuapp: 'menus/list'
+      }),
+      menuList () {
+        let menu = this.menuapp.sort((a, b) => {
+          return a.order - b.order
+        })
+        return menu
       }
     }
   }

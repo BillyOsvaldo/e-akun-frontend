@@ -17,6 +17,7 @@ export const storeSocket = new Vuex.Store({
   mutations,
   actions,
   plugins: [
+    service('menus'),
     service('addresses'),
     service('coderegs'),
     service('checkcode', {
@@ -41,6 +42,9 @@ export const storeSocket = new Vuex.Store({
     service('organizationsmanagement'),
     service('appsmanagement'),
     service('permissionsmanagement'),
+    service('appsselect'),
+    service('administratorsselect'),
+    service('menusmanagement'),
     auth(
       {
         state: {
@@ -50,8 +54,7 @@ export const storeSocket = new Vuex.Store({
         },
         userService: 'users'
       }
-    ),
-    service('menuapp')
+    )
   ]
 })
 

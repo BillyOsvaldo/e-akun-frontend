@@ -5,7 +5,7 @@
         <v-flex
           d-flex
           xs12 sm4 md3
-          v-for="item in this.$store.getters['menuapp/list'].filter(item => item.to !== '/')"
+          v-for="item in menuList"
           :key="item._id"
           style="padding: 16px;"
         >
@@ -28,7 +28,19 @@
 </template>
 
 <script>
+import {mapGetters} from 'vuex'
 export default {
+  computed: {
+    ...mapGetters({
+      menuapp: 'menus/list'
+    }),
+    menuList () {
+      let menu = this.menuapp.sort((a, b) => {
+        return a.order - b.order
+      })
+      return menu.filter(item => item.to !== '/')
+    }
+  },
   mounted () {
     this.$store.dispatch('setNavigationTitle', 'Home')
   }

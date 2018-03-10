@@ -44,7 +44,7 @@ export default {
       dataUser: 'users/current',
       permissions: 'permissions/current',
       role: 'roles/current',
-      menuList: 'menuapp/list'
+      menuList: 'menus/list'
     }),
     processData: function () {
       // start loading
@@ -178,13 +178,18 @@ export default {
       if (this.role !== null) {
         role = this.role._id
       }
+      console.log(permission)
+      console.log(role)
       let params = {
         query: {
-          permission: permission,
-          role: role
+          $or: [
+            {permissions: permission},
+            {roles: role},
+            { $and: [ { roles: [] }, { permissions: [] } ] }
+          ]
         }
       }
-      this.$store.dispatch('menuapp/find', params)
+      this.$store.dispatch('menus/find', params)
     }
   },
   created () {
