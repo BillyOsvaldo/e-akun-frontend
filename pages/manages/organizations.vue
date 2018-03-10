@@ -89,7 +89,7 @@ export default {
   },
   computed: {
     ...mapState({
-      oraganization: 'oraganizationsmanagement'
+      organizations: 'organizationsmanagement'
     }),
     ...mapGetters({
       organizationsList: 'organizationsmanagement/list'
