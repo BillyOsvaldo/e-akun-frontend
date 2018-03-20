@@ -8,7 +8,7 @@
             <v-layout wrap v-bind="loadData">
               <v-flex xs12>
                 <v-text-field
-                  autofocus
+                  disabled
                   v-model="name"
                   v-validate="'required'"
                   data-vv-name="name"
@@ -33,6 +33,8 @@
                   item-value="_id"
                   :cache-items="cacheItems"
                   :search-input.sync="search"
+                  v-validate="'required'"
+                  data-vv-name="address"
                   v-model="address"
                 ></v-select>
               </v-flex>

@@ -55,6 +55,10 @@ export function organizationStatusFormat (data) {
   return (data) ? 'Aktif' : 'Tidak Aktif'
 }
 
+export function organizationStructureStatusFormat (data) {
+  return (data) ? 'Aktif' : 'Tidak Aktif'
+}
+
 export function appStatusFormat (data) {
   return (data) ? 'Aktif' : 'Tidak Aktif'
 }

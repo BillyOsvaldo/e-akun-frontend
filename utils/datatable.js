@@ -74,6 +74,9 @@ export function generateTable (element, getWindow, className) {
     if (item.className.search('action') !== -1) {
       col.setAttribute('style', 'width: 84px;')
     }
+    if (item.className.search('small') !== -1) {
+      col.setAttribute('style', 'width: 72px;')
+    }
     columnGroup.appendChild(col)
   })
 

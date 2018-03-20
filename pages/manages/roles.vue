@@ -1,18 +1,30 @@
 <template>
-  <div class="permissions-content" v-resize="onResize" style="background: #fff;">
+  <div class="roles-content" v-resize="onResize" style="background: #fff;">
     <v-data-table
       :headers="headers"
       :items="items"
       hide-actions
-      class="permissions"
+      class="roles"
       id="scroll-target"
       :pagination.sync="pagination"
       v-bind="loadData + loadNextPage"
     >
       <template slot="items" slot-scope="props">
-        <td style="font-weight: 500;" class="text-xs-left">{{ props.item._id }}</td>
-        <td style="font-weight: 500;">{{ (props.item.app === null) ? 'Semua Aplikasi' : props.item.app.name }}</td>
-        <td class="text-xs-left">{{ props.item.administrator.name }}</td>
+        <td style="font-weight: 500;">{{ props.item._id }}</td>
+        <td style="font-weight: 500;">{{ props.item.name }}</td>
+        <td class="text-xs-center">
+          <div>
+            <v-tooltip
+              top
+              >
+              <v-btn
+                slot="activator" icon class="mx-0" @click.native="editItem(props.item)">
+                <v-icon color="grey darken-1">edit</v-icon>
+              </v-btn>
+              <span>Ubah</span>
+            </v-tooltip>
+          </div>
+        </td>
       </template>
       <template slot="no-data">
         <span>Belum ada data.</span>
@@ -26,18 +38,20 @@
         bottom
         right
         fab
-        @click.native="$root.$emit('openDialogAddPermissions')"
+        @click.native="$root.$emit('openDialogAddRoles')"
       >
         <v-icon>add</v-icon>
       </v-btn>
     </v-fab-transition>
     <dialogAdd/>
+    <dialogEdit/>
   </div>
 </template>
 
 <script>
 import {mapState, mapGetters} from 'vuex'
-import dialogAdd from '~/components/dialogs/manages/permissions/_add'
+import dialogAdd from '~/components/dialogs/manages/roles/_add'
+import dialogEdit from '~/components/dialogs/manages/roles/_edit'
 import {generateTable, resizeTable, loadData} from '~/utils/datatable'
 export default {
   data: () => ({
@@ -52,14 +66,14 @@ export default {
       y: 0
     },
     headers: [
-      { text: 'ID Permissions', align: 'left', value: 'app._id' },
-      { text: 'Aplikasi', align: 'left', value: 'app.name' },
-      { text: 'Administrator', value: 'administrator.name', sortable: false, align: 'left' }
+      { text: 'ID Aplikasi', align: 'left', value: '_id' },
+      { text: 'Nama', align: 'left', value: 'name' },
+      { text: '', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
-      sortBy: 'app.name',
+      sortBy: 'name',
       rowsPerPage: -1,
-      ascending: true
+      descending: true
     },
     items: [],
     doResendEmail: false,
@@ -67,20 +81,21 @@ export default {
     textSnackbar: ''
   }),
   components: {
-    dialogAdd
+    dialogAdd,
+    dialogEdit
   },
   computed: {
     ...mapState({
-      permissionsmanagement: 'permissionsmanagement'
+      roles: 'rolesmanagement'
     }),
     ...mapGetters({
-      permissionsList: 'permissionsmanagement/list'
+      rolesList: 'rolesmanagement/list'
     }),
     loadData () {
-      if (typeof this.permissionsList !== 'undefined') {
-        this.items = this.permissionsList
+      if (typeof this.rolesList !== 'undefined') {
+        this.items = this.rolesList
         if (this.items.length > 0 && this.tableCreated) {
-          loadData(this, 'permissions', this.items.length)
+          loadData(this, 'roles', this.items.length)
         }
       }
     },
@@ -89,7 +104,7 @@ export default {
     }
   },
   created () {
-    this.$store.commit('permissionsmanagement/clearAll')
+    this.$store.commit('rolesmanagement/clearAll')
     this.initialize()
   },
   watch: {
@@ -105,7 +120,7 @@ export default {
               $sort: this.sortValue
             }
           }
-          this.$store.dispatch('permissionsmanagement/find', params)
+          this.$store.dispatch('rolesmanagement/find', params)
         }
       }
     },
@@ -113,24 +128,25 @@ export default {
   },
   methods: {
     onResize () {
-      resizeTable(this, window, 'permissions')
+      resizeTable(this, window, 'roles')
     },
     initialize () {
       let params = {
         query: {}
       }
-      this.$store.dispatch('permissionsmanagement/find', params)
+      this.$store.dispatch('rolesmanagement/find', params)
     },
     getNextPage () {
       if (!this.scrollBottom) {
         this.nextPage = false
       }
-      if (this.scrollBottom && !this.nextPage && this.items.length < this.permissionsmanagement.pagination.default.total) {
+
+      if (this.scrollBottom && !this.nextPage && this.items.length < this.roles.pagination.default.total) {
         this.nextPage = true
         this.skipPage++
         let skipValue = this.skipPage * 10
-        if (skipValue > this.permissionsmanagement.pagination.default.total) {
-          skipValue = this.permissionsmanagement.pagination.default.total
+        if (skipValue > this.roles.pagination.default.total) {
+          skipValue = this.roles.pagination.default.total
         }
         let params = {
           query: {
@@ -138,19 +154,23 @@ export default {
             $skip: skipValue
           }
         }
-        this.$store.dispatch('permissionsmanagement/find', params)
+        this.$store.dispatch('rolesmanagement/find', params)
       }
+    },
+    editItem (item) {
+      this.$store.commit('rolesmanagement/setCurrent', item)
+      this.$root.$emit('openDialogEditRoles')
     }
   },
   mounted () {
-    this.$store.dispatch('setNavigationTitle', 'Daftar Izin Aplikasi')
-    generateTable(this, window, 'permissions')
+    this.$store.dispatch('setNavigationTitle', 'Manajemen Peran Pengguna')
+    generateTable(this, window, 'roles')
   }
 }
 </script>
 
 <style lang="sass">
-  .permissions
+  .roles
     position: relative
     zoom: 1
     min-width: 1000px

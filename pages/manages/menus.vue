@@ -10,6 +10,10 @@
       v-bind="loadData + loadNextPage"
     >
       <template slot="items" slot-scope="props">
+        <td>
+          <v-icon
+            small
+            :color="props.item.color">{{props.item.icon}}</v-icon></td>
         <td style="font-weight: 500;">{{ props.item.name }}</td>
         <td style="font-weight: 500;">{{ props.item.desc }}</td>
         <td class="text-xs-left">{{ props.item.to }}</td>
@@ -81,8 +85,8 @@
 
 <script>
 import {mapState, mapGetters} from 'vuex'
-import dialogAdd from '~/components/dialogs/manages/apps/_add'
-import dialogEdit from '~/components/dialogs/manages/apps/_edit'
+import dialogAdd from '~/components/dialogs/manages/menus/_add'
+import dialogEdit from '~/components/dialogs/manages/menus/_edit'
 import {generateTable, resizeTable, loadData} from '~/utils/datatable'
 export default {
   data: () => ({
@@ -97,6 +101,7 @@ export default {
       y: 0
     },
     headers: [
+      { text: '', align: 'left', sortable: false, value: 'icon', class: 'small' },
       { text: 'Nama', align: 'left', value: 'name' },
       { text: 'Deskripsi', align: 'left', sortable: false, value: 'desc' },
       { text: 'Path', value: 'to', sortable: false, align: 'left' },

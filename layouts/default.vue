@@ -178,8 +178,6 @@ export default {
       if (this.role !== null) {
         role = this.role._id
       }
-      console.log(permission)
-      console.log(role)
       let params = {
         query: {
           $or: [
@@ -194,6 +192,7 @@ export default {
   },
   created () {
     this.initAuth()
+    this.$store.commit('menus/clearAll')
   }
 }
 </script>

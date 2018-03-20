@@ -33,6 +33,8 @@
                   item-value="_id"
                   :cache-items="cacheItems"
                   :search-input.sync="search"
+                  v-validate="'required'"
+                  data-vv-name="address"
                   v-model="address"
                 ></v-select>
               </v-flex>
@@ -281,6 +283,16 @@ export default {
     resetAll () {
       this.$store.commit('organizationsmanagement/clearCreateError')
       this.$validator.reset()
+      this.name = null
+      this.address_organization = {
+        detail: '',
+        postcode: ''
+      }
+      this.email = null
+      this.phone = null
+      this.fax = null
+      this.site = null
+      this.status = true
     }
   },
   created () {
