@@ -54,6 +54,13 @@ export const storeSocket = new Vuex.Store({
     service('structuresselect'),
     service('organizationstructuresmanagement'),
     service('structureparentselect'),
+    service('administratorsmanagement'),
+    service('checkemail', {
+      idField: 'status'
+    }),
+    service('checkusername', {
+      idField: 'status'
+    }),
     auth(
       {
         state: {
