@@ -157,6 +157,11 @@ export default {
     resetAll () {
       this.$store.commit('appsmanagement/clearCreateError')
       this.$validator.reset()
+      this.name = null
+      this.description = null
+      this.service = null
+      this.url = null
+      this.status = true
     }
   },
   created () {

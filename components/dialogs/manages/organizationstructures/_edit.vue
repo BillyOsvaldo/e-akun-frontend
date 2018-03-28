@@ -12,14 +12,13 @@
                   autocomplete
                   :loading="loading"
                   v-bind:items="item_organizations"
-                  item-text="organization"
                   item-value="_id"
+                  item-text="organization"
                   :search-input.sync="search"
                   v-validate="'required'"
                   data-vv-name="organization"
                   :error-messages="errors.collect('organization')"
                   v-model="organization"
-                  v-bind="onChangeOrganization"
                   disabled
                 ></v-select>
               </v-flex>
@@ -190,20 +189,23 @@ export default {
         })
       }
       return _output
-    },
-    onChangeOrganization () {
-      if (this.organization) {
-        this.$store.commit('structureparentselect/clearAll')
-        let params = {
-          query: {
-            id: this.organization
-          }
-        }
-        this.$store.dispatch('structureparentselect/find', params)
-      }
     }
   },
   methods: {
+    onChangeOrganization (val) {
+      if (val) {
+        this.$store.commit('structureparentselect/clearAll')
+        let params = {
+          query: {
+            id: val
+          }
+        }
+        this.$store.dispatch('structureparentselect/find', params)
+          .then(response => {
+            console.log(response)
+          })
+      }
+    },
     statusOrgStructur (data) {
       if (data) {
         return 'Status: Aktif'
@@ -211,13 +213,13 @@ export default {
         return 'Status: Tidak Aktif'
       }
     },
-    changeOrganization () {
-      console.log(this.organization)
-    },
     loadData () {
       if (this.dialogEditOrganizationStructures) {
         this.$validator.reset()
         this.organization = (typeof this.organizationstructures.organization === 'undefined') ? '' : this.selectFilter(this.organizationstructures.organization)
+        if (this.organization) {
+          this.onChangeOrganization(this.organization)
+        }
         this.structure = (typeof this.organizationstructures.structure === 'undefined') ? '' : this.selectFilter(this.organizationstructures.structure)
         this.parent = (typeof this.organizationstructures.parent === 'undefined') ? '' : this.organizationstructures.parent
         this.alt_parent = (typeof this.organizationstructures.alt_parent === 'undefined') ? '' : this.organizationstructures.alt_parent
@@ -261,7 +263,6 @@ export default {
         let role = this.rolesselect.find((item) => item.name === name)
         output.push(role._id)
       })
-      console.log(output)
       return output
     },
     selectFilter (select) {

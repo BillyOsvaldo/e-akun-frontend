@@ -106,7 +106,7 @@
 
 <script>
   import {mapGetters} from 'vuex'
-  import {nameFormat, nipFormat, genderFormat, addressFormat, birthdayFormat, objectFormat} from '~/utils/format'
+  import {nameFormat, nipFormat, genderFormat, addressFormat, defaultDateFormat, objectFormat} from '~/utils/format'
   export default {
     computed: {
       ...mapGetters({
@@ -126,7 +126,7 @@
         return (typeof this.profiles === 'undefined' && typeof this.postcodes === 'undefined') ? '' : addressFormat(this.profiles.address, this.postcodes.find((item) => item._id === this.profiles.address.postcode))
       },
       birthdayText: function () {
-        return (typeof this.profiles === 'undefined') ? '' : birthdayFormat(objectFormat(this.profiles.birth, 'day'))
+        return (typeof this.profiles === 'undefined') ? '' : defaultDateFormat(objectFormat(this.profiles.birth, 'day'))
       },
       birthplaceText: function () {
         return (typeof this.profiles === 'undefined') ? '' : objectFormat(this.profiles.birth, 'place')

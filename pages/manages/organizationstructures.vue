@@ -140,6 +140,12 @@ export default {
         query: {}
       }
       this.$store.dispatch('organizationstructuresmanagement/find', params)
+      let paramsforDialogs = {
+        query: {}
+      }
+      this.$store.dispatch('organizationsselect/find', paramsforDialogs)
+      this.$store.dispatch('structuresselect/find', paramsforDialogs)
+      this.$store.dispatch('rolesselect/find', paramsforDialogs)
     },
     getNextPage () {
       if (!this.scrollBottom) {
@@ -178,7 +184,7 @@ export default {
 </script>
 
 <style lang="sass">
-  .roles
+  .organizationstructures
     position: relative
     zoom: 1
     min-width: 1000px

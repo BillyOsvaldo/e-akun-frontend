@@ -120,6 +120,8 @@ export default {
         query: {}
       }
       this.$store.dispatch('permissionsmanagement/find', params)
+      this.$store.dispatch('appsselect/find', params)
+      this.$store.dispatch('administratorsselect/find', params)
     },
     getNextPage () {
       if (!this.scrollBottom) {

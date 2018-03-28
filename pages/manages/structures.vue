@@ -172,7 +172,7 @@ export default {
 </script>
 
 <style lang="sass">
-  .roles
+  .structures
     position: relative
     zoom: 1
     min-width: 1000px

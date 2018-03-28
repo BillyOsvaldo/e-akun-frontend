@@ -258,11 +258,6 @@ export default {
     this.$root.$on('opendialogAddAdministrators', () => {
       this.dialogAddAdministrators = true
     })
-    let params = {
-      query: {}
-    }
-    this.$store.dispatch('appsselect/find', params)
-    this.$store.dispatch('administratorsselect/find', params)
     this.$validator.localize(customHelptext)
   }
 }

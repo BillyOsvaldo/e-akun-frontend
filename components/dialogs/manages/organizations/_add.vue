@@ -35,6 +35,7 @@
                   :search-input.sync="search"
                   v-validate="'required'"
                   data-vv-name="address"
+                  :error-messages="errors.collect('address')"
                   v-model="address"
                 ></v-select>
               </v-flex>

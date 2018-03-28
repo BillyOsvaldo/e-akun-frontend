@@ -238,19 +238,6 @@ export default {
     this.$root.$on('openDialogAddMenus', () => {
       this.dialogAddMenus = true
     })
-    let params = {
-      query: {}
-    }
-    let paramspermissions = {
-      query: {
-        $or: [
-          {app: process.env.ID_APP},
-          {app: null}
-        ]
-      }
-    }
-    this.$store.dispatch('rolesselect/find', params)
-    this.$store.dispatch('permissionsselect/find', paramspermissions)
     this.$validator.localize(customHelptext)
   }
 }

@@ -43,7 +43,7 @@ export function addressFormat (address, postcode) {
   return _address
 }
 
-export function birthdayFormat (date) {
+export function defaultDateFormat (date) {
   return moment(date).format('DD MMMM YYYY')
 }
 

@@ -176,6 +176,16 @@ export default {
         query: {}
       }
       this.$store.dispatch('menusmanagement/find', params)
+      let paramspermissions = {
+        query: {
+          $or: [
+            {app: process.env.ID_APP},
+            {app: null}
+          ]
+        }
+      }
+      this.$store.dispatch('rolesselect/find', params)
+      this.$store.dispatch('permissionsselect/find', paramspermissions)
     },
     getNextPage () {
       if (!this.scrollBottom) {

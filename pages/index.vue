@@ -1,5 +1,5 @@
 <template>
-  <div style="background: #fff;min-height: 100vh">
+  <div class="home" style="background: #fff;min-height: 100vh">
     <v-container grid-list-md>
       <v-layout row wrap>
         <v-flex
@@ -47,6 +47,13 @@ export default {
 }
 </script>
 
+<style lang="sass" scoped>
+  .home
+    background: #f7f7f7
+    padding: 40px 0
+    overflow-y: scroll
+    height: 100vh
+</style>
 <style lang="sass">
   .menu-item
     text-align: center

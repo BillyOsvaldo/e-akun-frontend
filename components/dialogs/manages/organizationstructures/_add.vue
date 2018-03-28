@@ -18,7 +18,6 @@
                   data-vv-name="organization"
                   :error-messages="errors.collect('organization')"
                   v-model="organization"
-                  v-bind="onChangeOrganization"
                 ></v-select>
               </v-flex>
               <v-flex>
@@ -184,20 +183,27 @@ export default {
         })
       }
       return _output
-    },
-    onChangeOrganization () {
-      if (this.organization) {
-        this.$store.commit('structureparentselect/clearAll')
-        let params = {
-          query: {
-            id: this.organization._id
-          }
-        }
-        this.$store.dispatch('structureparentselect/find', params)
+    }
+  },
+  watch: {
+    organization (val) {
+      if (val) {
+        this.onChangeOrganization(val)
       }
     }
   },
   methods: {
+    onChangeOrganization (val) {
+      if (val) {
+        this.$store.commit('structureparentselect/clearAll')
+        let params = {
+          query: {
+            id: val._id
+          }
+        }
+        this.$store.dispatch('structureparentselect/find', params)
+      }
+    },
     statusOrgStructur (data) {
       if (data) {
         return 'Status: Aktif'
@@ -257,12 +263,6 @@ export default {
     this.$root.$on('openDialogAddOrganizationstructures', () => {
       this.dialogAddOrganizationStructures = true
     })
-    let params = {
-      query: {}
-    }
-    this.$store.dispatch('organizationsselect/find', params)
-    this.$store.dispatch('structuresselect/find', params)
-    this.$store.dispatch('rolesselect/find', params)
     this.$validator.localize(customHelptext)
   }
 }

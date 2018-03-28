@@ -15,6 +15,9 @@
                   item-text="app"
                   :search-input.sync="search"
                   v-model="app"
+                  v-validate="'required'"
+                  data-vv-name="app"
+                  :error-messages="errors.collect('app')"
                   @change="appOnChange"
                 ></v-select>
               </v-flex>
@@ -26,6 +29,8 @@
                   v-bind:items="item_admin"
                   item-text="admin"
                   :search-input.sync="search"
+                  v-validate="'required'"
+                  data-vv-name="administrator"
                   :error-messages="errorMessageAdmin"
                   v-model="administrator"
                 ></v-select>
@@ -51,6 +56,9 @@ const customHelptext = {
     custom: {
       app: {
         required: 'Nama Aplikasi harus di isi'
+      },
+      administrator: {
+        required: 'Jenis Pengguna harus di isi'
       }
     }
   }
@@ -128,9 +136,7 @@ export default {
       if (this.permissionsmanagement.errorOnCreate !== null) {
         return 'Administrator Sudah Digunakan.'
       } else {
-        if (this.administrator !== null) {
-          return this.errors.collect('administrator')
-        }
+        return this.errors.collect('administrator')
       }
     }
   },
@@ -172,11 +178,6 @@ export default {
     this.$root.$on('openDialogAddPermissions', () => {
       this.dialogAddPermissions = true
     })
-    let params = {
-      query: {}
-    }
-    this.$store.dispatch('appsselect/find', params)
-    this.$store.dispatch('administratorsselect/find', params)
     this.$validator.localize(customHelptext)
   }
 }

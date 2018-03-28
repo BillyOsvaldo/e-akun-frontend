@@ -80,4 +80,6 @@
     background: #eee !important
   .list__tile--link:hover
     background: #f7f7f7
+  .navigation-drawer__border
+    display: none
 </style>

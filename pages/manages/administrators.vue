@@ -155,6 +155,11 @@ export default {
         query: { $where: 'this.administrators.length > 0' }
       }
       this.$store.dispatch('administratorsmanagement/find', params)
+      let paramsforDialogs = {
+        query: {}
+      }
+      this.$store.dispatch('appsselect/find', paramsforDialogs)
+      this.$store.dispatch('administratorsselect/find', paramsforDialogs)
     },
     getNextPage () {
       if (!this.scrollBottom) {
