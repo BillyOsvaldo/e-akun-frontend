@@ -68,6 +68,7 @@ export const storeSocket = new Vuex.Store({
     service('checkusername', {
       idField: 'status'
     }),
+    service('administratorpermissionsmanagement'),
     auth(
       {
         state: {

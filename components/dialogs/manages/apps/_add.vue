@@ -100,25 +100,7 @@ export default {
     ...mapState({
     }),
     ...mapGetters({
-    }),
-    items: function () {
-      let _output = []
-
-      if (this.postcodes.length > 0) {
-        this.postcodes.forEach((post) => {
-          let item = post.provinsi + ', ' + post.kotakab + ', ' + post.kecamatan + ', ' + post.kelurahan
-          let _data = {
-            _id: post._id,
-            addr: item
-          }
-          _output.push(_data)
-          this.tempItems.push(post)
-        })
-      } else {
-        _output = []
-      }
-      return _output
-    }
+    })
   },
   methods: {
     statusApps (data) {
