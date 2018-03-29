@@ -137,7 +137,7 @@ export default {
         }
 
         // find organization
-        if (user.organizationuser.organization) {
+        if (user.organizationuser && user.organizationuser.organization) {
           let organization = await this.$store.dispatch('organizations/get', user.organizationuser.organization)
           if (organization.address.postcode) {
             await this.$store.dispatch('postcodes/get', organization.address.postcode)
