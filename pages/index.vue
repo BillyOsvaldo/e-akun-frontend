@@ -1,6 +1,6 @@
 <template>
-  <div class="home" style="background: #fff;min-height: 100vh">
-    <v-container grid-list-md>
+  <div class="home">
+    <v-container grid-list-md style="margin-bottom: 120px;">
       <v-layout row wrap>
         <v-flex
           d-flex
@@ -49,9 +49,9 @@ export default {
 
 <style lang="sass" scoped>
   .home
-    background: #f7f7f7
-    padding: 40px 0
+    background: #fff
     overflow-y: scroll
+    min-height: 100vh
     height: 100vh
 </style>
 <style lang="sass">

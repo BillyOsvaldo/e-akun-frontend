@@ -33,6 +33,7 @@ export const storeSocket = new Vuex.Store({
     service('users'),
     service('profiles'),
     service('postcodes'),
+    service('organizationusers'),
     service('organizations'),
     service('roles'),
     service('permissions'),

@@ -121,11 +121,8 @@ export default {
         const isNotSemuaAplikasi = this.appSelected._id !== null
         if (isSemuaAplikasi && post.name === 'Super Admin') {
           _output.push(_data)
-        } else if (isSemuaAplikasi && post.name === 'Kepala Daerah') {
-          _output.push(_data)
-        } else if (isNotSemuaAplikasi && post.name === 'Admin Aplikasi') {
-          _output.push(_data)
-        } else if (isNotSemuaAplikasi && post.name === 'Admin Organisasi') {
+        }
+        if (isNotSemuaAplikasi && post.name !== 'Super Admin') {
           _output.push(_data)
         }
       })

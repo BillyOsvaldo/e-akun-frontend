@@ -13,7 +13,6 @@
         <td style="font-weight: 500;">{{ (props.item.profile.name.first_name + ' ' + props.item.profile.name.last_name) }}</td>
         <td class="text-xs-center">{{ props.item.username }}</td>
         <td class="text-xs-center">{{ props.item.email }}</td>
-        <td class="text-xs-center">{{ props.item.role.name }}</td>
         <td class="text-xs-center">
           <div>
             <v-tooltip
@@ -35,19 +34,6 @@
                 <v-icon color="grey darken-1">email</v-icon>
               </v-btn>
               <span>Ubah Email</span>
-            </v-tooltip>
-          </div>
-        </td>
-        <td class="text-xs-center">
-          <div>
-            <v-tooltip
-              top
-              >
-              <v-btn
-                slot="activator" icon class="mx-0" @click="resendEmail(props.item)">
-                <v-icon color="grey darken-1">group_work</v-icon>
-              </v-btn>
-              <span>Ubah Role</span>
             </v-tooltip>
           </div>
         </td>
@@ -93,8 +79,6 @@ export default {
       { text: 'Nama', align: 'left', value: 'profile.name.first_name' },
       { text: 'ID Akun', value: 'username', align: 'center', sortable: false },
       { text: 'Email', value: 'email', align: 'center', sortable: false },
-      { text: 'Role', value: 'role.name', align: 'center', sortable: false },
-      { text: '', value: 'name', sortable: false, class: 'action' },
       { text: '', value: 'name', sortable: false, class: 'action' },
       { text: '', value: 'name', sortable: false, class: 'action' }
     ],
@@ -145,7 +129,7 @@ export default {
           }
           let params = {
             query: {
-              organization: this.organization._id,
+              'organizationusers.organization': this.organization._id,
               $sort: this.sortValue
             }
           }
@@ -162,7 +146,7 @@ export default {
     initialize () {
       let params = {
         query: {
-          organization: this.organization._id
+          'organizationusers.organization': this.organization._id
         }
       }
       this.$store.dispatch('usersmanagement/find', params)
@@ -181,7 +165,7 @@ export default {
         }
         let params = {
           query: {
-            organization: this.organization._id,
+            'organizationusers.organization': this.organization._id,
             $sort: this.sortValue,
             $skip: skipValue
           }

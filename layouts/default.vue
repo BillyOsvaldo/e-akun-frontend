@@ -60,7 +60,7 @@ export default {
       }
 
       // init menu
-      if (this.auth.user !== null && !this.auth.publicPages.includes(this.$route.name)) {
+      if (this.auth.user && !this.auth.publicPages.includes(this.$route.name)) {
         if (!this.hasUserLoaded) {
           this.loadDataUser(this.auth.user)
         }
@@ -71,7 +71,7 @@ export default {
       }
 
       // verified page
-      if (this.menuList.length > 0 && this.$route.path !== null) {
+      if (this.menuList.length > 0 && this.$route.path) {
         let _checkMenu = this.menuList.find((item) => item.to === this.$route.path)
         if (typeof _checkMenu !== 'object') {
           this.verified = false
@@ -97,7 +97,7 @@ export default {
         if (this.auth.payload.hasOwnProperty('userId')) {
           this.$store.dispatch('users/get', this.auth.payload.userId).then((user) => {
             // JWT authentication successful
-            if (user !== null && this.auth.userService) {
+            if (user && this.auth.userService) {
               this.loadDataUser(user)
             }
           }).catch(e => {
@@ -106,7 +106,7 @@ export default {
             api.authenticate().then(response => {
               this.$store.dispatch('users/get', this.auth.payload.userId).then((user) => {
                 // JWT authentication successful
-                if (user !== null && this.auth.userService) {
+                if (user && this.auth.userService) {
                   this.loadDataUser(user)
                 }
               })
@@ -124,34 +124,47 @@ export default {
           this.$store.commit('users/setCurrent', user)
         }
         // set profile
-        if (user.profile !== null) {
+        if (user.profile) {
           let profile = await this.$store.dispatch('profiles/get', user.profile)
-          if (profile.address.postcode !== null) {
+          if (profile.address.postcode) {
             await this.$store.dispatch('postcodes/get', profile.address.postcode)
           }
         }
+        // find organization user
+        if (user.organizationuser) {
+          let organizationuser = await this.$store.dispatch('organizationusers/get', user.organizationuser)
+          user.organizationuser = organizationuser
+        }
+
         // find organization
-        if (user.organization !== null) {
-          let organization = await this.$store.dispatch('organizations/get', user.organization)
-          if (organization.address.postcode !== null) {
+        if (user.organizationuser.organization) {
+          let organization = await this.$store.dispatch('organizations/get', user.organizationuser.organization)
+          if (organization.address.postcode) {
             await this.$store.dispatch('postcodes/get', organization.address.postcode)
           }
         }
         // clear current postcodes
         this.$store.commit('postcodes/clearCurrent')
         // find role
-        if (user.role !== null) {
+        if (user.role) {
           await this.$store.dispatch('roles/get', user.role)
         }
         // find permissions
         let params = {
           query: {
-            app: process.env.ID_APP
+            $or: [
+              {
+                app: process.env.ID_APP
+              },
+              {
+                app: null
+              }
+            ]
           }
         }
         let allpermissions = await this.$store.dispatch('permissions/find', params)
         let permissions = null
-        if (user.permissions !== null) {
+        if (user.permissions) {
           user.permissions.forEach((item) => {
             let _permission = allpermissions.data.find((i) => i._id === item)
             if (typeof _permission !== 'undefined') {
@@ -160,9 +173,11 @@ export default {
           })
         }
         this.$store.commit('permissions/setCurrent', permissions)
-        if (permissions !== null) {
+        if (permissions) {
           await this.$store.dispatch('administrators/get', permissions.administrator)
-          await this.$store.dispatch('apps/get', permissions.app)
+          if (permissions.app) {
+            await this.$store.dispatch('apps/get', permissions.app)
+          }
         }
         this.$store.commit('auth/setUser', user)
         this.hasUserLoaded = true
@@ -172,10 +187,10 @@ export default {
     initMenu () {
       let permission = null
       let role = null
-      if (this.permissions !== null) {
+      if (this.permissions) {
         permission = this.permissions._id
       }
-      if (this.role !== null) {
+      if (this.role) {
         role = this.role._id
       }
       let params = {

@@ -10,9 +10,36 @@
       <v-btn icon color="white--text">
         <v-icon>apps</v-icon>
       </v-btn>
-      <v-btn icon color="white--text">
-        <v-icon>more_vert</v-icon>
-      </v-btn>
+      <v-menu
+        offset-x
+        :close-on-content-click="false"
+        :nudge-width="300"
+        absolute
+        v-model="menuProfile"
+      >
+        <v-avatar slot="activator" size="36px" style="margin: 0 16px; cursor: pointer;" class="grey">
+          <span class="white--text headline">{{ avatarName }}</span>
+        </v-avatar>
+        <v-card>
+          <v-list>
+            <v-list-tile avatar>
+              <v-list-tile-avatar>
+                <v-icon class="primary white--text">person</v-icon>
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                <v-list-tile-title>{{ nameOfMenuProfile }}</v-list-tile-title>
+                <v-list-tile-sub-title>{{ user.email }}</v-list-tile-sub-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-btn depressed @click="toProfile">Ubah Profil</v-btn>
+            <v-spacer></v-spacer>
+            <v-btn depressed color="primary" @click="logoutAccount">Keluar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
     </v-toolbar>
 
     <v-navigation-drawer
@@ -50,22 +77,54 @@
 </template>
 
 <script>
-  import {mapGetters} from 'vuex'
+  import {mapGetters, mapActions} from 'vuex'
   export default {
     data () {
       return {
-        isOpen: null
+        isOpen: null,
+        menuProfile: false
       }
     },
     computed: {
       ...mapGetters({
-        menuapp: 'menus/list'
+        menuapp: 'menus/list',
+        user: 'users/current',
+        profile: 'profiles/current'
       }),
       menuList () {
         let menu = this.menuapp.sort((a, b) => {
           return a.order - b.order
         })
         return menu
+      },
+      avatarName () {
+        if (this.profile) {
+          return this.profile.name.first_name.charAt(0).toUpperCase()
+        } else {
+          if (this.user) {
+            return this.user.username.charAt(0).toUpperCase()
+          }
+        }
+      },
+      nameOfMenuProfile () {
+        if (this.profile) {
+          return this.profile.name.first_name + ' ' + this.profile.name.last_name
+        } else {
+          if (this.user) {
+            return this.user.username.toUpperCase()
+          }
+        }
+      }
+    },
+    methods: {
+      ...mapActions('auth', ['logout']),
+      logoutAccount () {
+        this.menuProfile = false
+        this.logout().then(() => this.$router.go({ name: 'signin' }))
+      },
+      toProfile () {
+        this.menuProfile = false
+        this.$router.push({ path: 'profile' })
       }
     }
   }
