@@ -17,6 +17,7 @@ export const storeSocket = new Vuex.Store({
   mutations,
   actions,
   plugins: [
+    service('userRegistration'),
     service('userapp'),
     service('menus'),
     service('addresses'),
@@ -59,10 +60,14 @@ export const storeSocket = new Vuex.Store({
     service('organizationusersmanagement'),
     service('usersselect'),
     service('organizationstructuresusersmanagement'),
+    service('organizationstructuresusersdraftmanagement'),
     service('organizationstructuresselect'),
     service('organizationusersexpand'),
     service('organizationusersdraftmanagement'),
+    service('organizationusersbyuser'),
+    service('organizationstructuresusersbyuser'),
     service('checkorganizationusers'),
+    service('allorganizationusersdraft'),
     service('checkemail', {
       idField: 'status'
     }),

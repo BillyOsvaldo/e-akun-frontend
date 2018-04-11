@@ -42,7 +42,7 @@ export default {
     }
   },
   mounted () {
-    this.$store.dispatch('setNavigationTitle', 'Home')
+    this.$store.dispatch('setNavigationCount', 0)
   }
 }
 </script>

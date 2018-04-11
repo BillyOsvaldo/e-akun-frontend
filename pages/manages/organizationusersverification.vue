@@ -53,6 +53,7 @@
 </template>
 
 <script>
+import api from '~/api/feathers-client'
 import {mapState, mapGetters} from 'vuex'
 import dialogEdit from '~/components/dialogs/manages/organizationusers/_edit'
 import dialogPublish from '~/components/dialogs/manages/organizationusers/_publish'
@@ -66,6 +67,7 @@ export default {
     nextPage: false,
     sortValue: {},
     skipPage: 0,
+    total: 0,
     windowSize: {
       x: 0,
       y: 0
@@ -87,7 +89,8 @@ export default {
     items: [],
     doResendEmail: false,
     snackbarView: false,
-    textSnackbar: ''
+    textSnackbar: '',
+    itemAdded: []
   }),
   components: {
     dialogEdit,
@@ -105,6 +108,10 @@ export default {
         this.items = this.organizationusersList
         if (this.items.length > 0 && this.tableCreated) {
           loadData(this, 'organizationusers', this.items.length)
+        }
+        if (this.tempAdded) {
+          let total = this.total + this.tempAdded.length
+          this.$store.dispatch('setNavigationCount', total)
         }
       }
     },
@@ -144,6 +151,20 @@ export default {
         query: {}
       }
       this.$store.dispatch('organizationusersdraftmanagement/find', params)
+        .then(response => {
+          this.total = response.total
+          this.$store.dispatch('setNavigationCount', this.total)
+        })
+      this.$store.dispatch('setNavigationCount', this.total)
+      api.service('organizationusersdraftmanagement').on('created', (doc) => {
+        if (this.tempAdded.length === 0) {
+          this.tempAdded.push(doc._id)
+        } else {
+          if (this.tempAdded.find((i) => i !== doc._id)) {
+            this.tempAdded.push(doc._id)
+          }
+        }
+      })
       this.$store.dispatch('organizationsselect/find', params)
     },
     getNextPage () {

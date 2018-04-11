@@ -1,11 +1,26 @@
 <template>
   <v-layout row justify-center>
-    <v-dialog v-model="dialogAdd" persistent scrollable max-width="480">
-      <v-card v-if="dialogAdd">
-        <v-card-title class="headline">Tambah Kode Registrasi</v-card-title>
+    <v-dialog v-model="dialogEdit" persistent scrollable max-width="480">
+      <v-card v-if="dialogEdit">
+        <v-card-title class="headline">Ubah Kode Registrasi</v-card-title>
         <v-card-text style="max-height: 300px;">
           <v-container grid-list-md>
             <v-layout wrap>
+              <v-flex xs12>
+               <v-select
+                  label="Pilih Organisasi"
+                  autocomplete
+                  :loading="loading"
+                  v-bind:items="item_organizations"
+                  item-value="_id"
+                  item-text="organization"
+                  :search-input.sync="search"
+                  v-validate="'required'"
+                  data-vv-name="organization"
+                  :error-messages="errors.collect('organization')"
+                  v-model="organization"
+                ></v-select>
+              </v-flex>
               <v-flex xs12>
                 <v-text-field
                   autofocus
@@ -15,7 +30,7 @@
                   label="Alamat Email"
                   v-on:blur="checkEmail"
                   :error-messages="errorMessageEmail"
-                  v-on:keyup.enter="postCreated"
+                  v-on:keyup.enter="postPatched"
                   ></v-text-field>
               </v-flex>
               <v-flex xs12>
@@ -29,6 +44,7 @@
                     :disabled="(item_organizationstructures.length > 0) ? false : true"
                     :loading="loading"
                     :items="item_organizationstructures"
+                    item-value="_id"
                     item-text="organizationstructure"
                     :search-input.sync="search"
                     v-model="organizationstructure"
@@ -132,9 +148,9 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn flat @click.native="closedialogAddButton">Batal</v-btn>
+          <v-btn flat @click.native="closedialogEditButton">Batal</v-btn>
           <v-btn flat color="blue darken-1"
-            @click.native="postCreated">Tambah</v-btn>
+            @click.native="postPatched">Simpan</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -149,6 +165,9 @@
   const customHelptext = {
     en: {
       custom: {
+        organization: {
+          required: 'Pilih Organisasi harus di isi'
+        },
         email: {
           required: 'Alamat Email harus diisi.',
           email: 'Format Email harus benar.'
@@ -165,8 +184,8 @@
 
   export default {
     data: () => ({
-      dialogAdd: false,
-      hasCheckEmail: false,
+      dialogEdit: false,
+      organization: null,
       email: null,
       loading: false,
       search: null,
@@ -187,9 +206,11 @@
         checkuser: 'checkuser'
       }),
       ...mapGetters({
-        user: 'users/current',
-        organization: 'organizations/current',
-        organizationstructuresselect: 'organizationstructuresselect/list'
+        codereg: 'coderegsmanagement/current',
+        organizationsselect: 'organizationsselect/list',
+        organizationstructuresselect: 'organizationstructuresselect/list',
+        organizationusers: 'organizationusersbyuser/list',
+        organizationstructuresusers: 'organizationstructuresusersbyuser/list'
       }),
       errorMessageEmail () {
         if (this.checkuser.errorOnFind !== null) {
@@ -213,6 +234,19 @@
         } else {
           this.hasError = false
         }
+      },
+      item_organizations () {
+        let _output = []
+        if (this.organizationsselect.length > 0) {
+          this.organizationsselect.forEach((item) => {
+            let data = {
+              _id: item._id,
+              organization: item.name
+            }
+            _output.push(data)
+          })
+        }
+        return _output
       },
       item_organizationstructures () {
         let _output = []
@@ -244,11 +278,20 @@
       }
     },
     watch: {
+      organization (val) {
+        if (val) {
+          this.onChangeOrganization(val)
+        }
+      },
       email (val) {
-        if (typeof val !== 'undefined' && val !== null) {
-          if (val.length === 0) {
-            this.$store.commit('checkuser/clearFindError')
-          }
+        if (val && val.length === 0) {
+          this.$store.commit('checkuser/clearFindError')
+        }
+      },
+      position (val) {
+        if (!val) {
+          this.organizationstructure = null
+          this.organizationStructuresUsersStartDate = null
         }
       },
       organizationstructure (val) {
@@ -258,26 +301,51 @@
       }
     },
     methods: {
+      loadData () {
+        if (this.dialogEdit) {
+          this.$validator.reset()
+          this.organization = (this.codereg.organization) ? this.codereg.organization : ''
+          this.email = (this.codereg.email) ? this.codereg.email : ''
+          this.inside = (this.organizationusers.length === 0) ? null : this.organizationusers[0].inside
+          this.organizationstructure = (this.organizationstructuresusers.length === 0) ? null : this.organizationstructuresusers[0].organizationstructure
+          this.date_for_startDate = (this.organizationusers.length === 0) ? null : moment(this.organizationusers[0].startDate).format('YYYY-MM-DD')
+          this.startDate = (this.organizationusers.length === 0) ? null : formatFormDate(moment(this.organizationusers[0].startDate).format('YYYY-MM-DD'))
+          this.date_for_organizationStructuresUsersStartDate = (this.organizationstructuresusers.length === 0) ? null : moment(this.organizationstructuresusers[0].startDate).format('YYYY-MM-DD')
+          this.organizationStructuresUsersStartDate = (this.organizationstructuresusers.length === 0) ? null : formatFormDate(moment(this.organizationstructuresusers[0].startDate).format('YYYY-MM-DD'))
+          if (this.organizationstructuresusers.length > 0) {
+            this.position = true
+          }
+        }
+      },
+      onChangeOrganization (val) {
+        if (val) {
+          this.$store.commit('organizationstructuresselect/clearAll')
+          let params = {
+            query: {
+              organization: val
+            }
+          }
+          this.$store.dispatch('organizationstructuresselect/find', params)
+        }
+      },
       checkEmail () {
         this.$store.commit('checkuser/clearFindError')
-        if (this.email) {
+        if (this.email && this.codereg.email) {
           let params = {
             query: {
               email: this.email
             }
           }
           this.$store.dispatch('checkuser/find', params)
-          this.$nextTick(() => {
-            this.hasCheckEmail = true
-          })
         }
       },
       onChangeOrganizationStructure (val) {
         if (val) {
-          if ((val.organizationstructure.search(/(sub|seksi)/i)) === -1) {
-            this.inside = val._id
+          let orgStructurDoc = this.item_organizationstructures.find((item) => item._id === val)
+          if ((orgStructurDoc.organizationstructure.search(/(sub|seksi)/i)) === -1) {
+            this.inside = val
           } else {
-            let orgStructurSelDoc = this.organizationstructuresselect.find((item) => item._id === val._id)
+            let orgStructurSelDoc = this.organizationstructuresselect.find((item) => item._id === val)
             this.inside = orgStructurSelDoc.parent
           }
           if (this.startDate) {
@@ -285,36 +353,9 @@
           }
         }
       },
-      closedialogAddButton () {
-        this.dialogAdd = !this.dialogAdd
+      closedialogEditButton () {
+        this.dialogEdit = !this.dialogEdit
         this.resetAll()
-      },
-      postCreated () {
-        this.isPosting = true
-        this.hasError = false
-        setTimeout(() => {
-          this.$validator.validateAll()
-            .then((result) => {
-              if (result && !this.hasError && this.hasCheckEmail && this.checkuser.errorOnFind === null) {
-                this.isPosting = false
-                let newCodeReg = {
-                  email: this.email,
-                  organization: this.organization._id,
-                  organizationstructure: this.organizationstructure,
-                  inside: this.inside,
-                  organizationUsersStartDate: parseFormDate(this.startDate),
-                  organizationStructuresUsersStartDate: parseFormDate(this.organizationStructuresUsersStartDate)
-                }
-                this.$store.dispatch('coderegsmanagement/create', newCodeReg)
-                  .then(response => {
-                    if (response) {
-                      this.dialogAdd = false
-                      this.resetAll()
-                    }
-                  })
-              }
-            })
-        }, 100)
       },
       formatDate (value) {
         return formatFormDate(value)
@@ -322,11 +363,40 @@
       onBlur (field) {
         setTimeout(() => this.$validator.validate(field), 500)
       },
+      postPatched () {
+        this.isPosting = true
+        this.hasError = false
+        setTimeout(() => {
+          this.$validator.validateAll()
+            .then((result) => {
+              if (result && !this.hasError && this.checkuser.errorOnFind === null) {
+                let editCodeReg = {
+                  email: this.email,
+                  organization: this.organization._id,
+                  organizationstructure: this.organizationstructure,
+                  inside: this.inside,
+                  organizationUsersStartDate: parseFormDate(this.startDate),
+                  organizationStructuresUsersStartDate: parseFormDate(this.organizationStructuresUsersStartDate)
+                }
+                let params = {}
+                this.$store.dispatch('coderegsmanagement/patch', [this.codereg._id, editCodeReg, params])
+                  .then(response => {
+                    if (response) {
+                      this.dialogEdit = false
+                      this.resetAll()
+                    }
+                  })
+              }
+            })
+        }, 100)
+      },
       resetAll () {
         this.$store.commit('checkuser/clearFindError')
         this.$store.commit('coderegsmanagement/clearPatchError')
+        this.$store.commit('organizationusersbyuser/clearAll')
+        this.$store.commit('organizationstructuresusersbyuser/clearAll')
         this.$validator.reset()
-        this.hasCheckEmail = false
+        this.organization = null
         this.email = null
         this.search = null
         this.position = false
@@ -343,8 +413,9 @@
       }
     },
     created () {
-      this.$root.$on('openDialogAddCodeRegs', () => {
-        this.dialogAdd = true
+      this.$root.$on('openDialogEditAllCodeRegs', () => {
+        this.dialogEdit = true
+        this.loadData()
       })
       this.$validator.localize(customHelptext)
     }

@@ -13,6 +13,8 @@
         <td style="font-weight: 500;">{{ (props.item.profile.name.first_name + ' ' + props.item.profile.name.last_name) }}</td>
         <td class="text-xs-center">{{ props.item.username }}</td>
         <td class="text-xs-center">{{ props.item.email }}</td>
+        <td class="text-xs-center">{{ (props.item.organizationuser) ? (props.item.organizationuser.inside.structure.name + (props.item.organizationuser.inside.name === null ? '' : ' ' + props.item.organizationuser.inside.name)) : '' }}</td>
+        <td class="text-xs-center">{{ (props.item.position) ? (props.item.position.structure.nameOfPosition + (props.item.position.name === null ? '' : ' ' + props.item.position.name)) : '' }}</td>
         <td class="text-xs-center">
           <div>
             <v-tooltip
@@ -57,7 +59,8 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import api from '~/api/feathers-client'
+import {mapState, mapGetters} from 'vuex'
 import dialogPassword from '~/components/dialogs/manages/users/_password'
 import dialogEmail from '~/components/dialogs/manages/users/_email'
 import dialogNIP from '~/components/dialogs/manages/users/_nip'
@@ -70,6 +73,7 @@ export default {
     scrollBottom: false,
     nextPage: false,
     sortValue: {},
+    total: 0,
     skipPage: 0,
     windowSize: {
       x: 0,
@@ -79,6 +83,8 @@ export default {
       { text: 'Nama', align: 'left', value: 'profile.name.first_name' },
       { text: 'ID Akun', value: 'username', align: 'center', sortable: false },
       { text: 'Email', value: 'email', align: 'center', sortable: false },
+      { text: 'Penempatan', value: 'organizationusers.inside', align: 'center', sortable: false },
+      { text: 'Jabatan', value: 'position', align: 'center', sortable: false },
       { text: '', value: 'name', sortable: false, class: 'action' },
       { text: '', value: 'name', sortable: false, class: 'action' }
     ],
@@ -89,7 +95,8 @@ export default {
     },
     items: [],
     snackbarView: false,
-    textSnackbar: ''
+    textSnackbar: '',
+    tempAdded: []
   }),
   components: {
     dialogPassword,
@@ -97,6 +104,9 @@ export default {
     dialogNIP
   },
   computed: {
+    ...mapState({
+      usersmanagement: 'usersmanagement'
+    }),
     ...mapGetters({
       organization: 'organizations/current',
       usersmanagementList: 'usersmanagement/list'
@@ -104,10 +114,15 @@ export default {
     loadData () {
       if (typeof this.usersmanagementList !== 'undefined') {
         // console.log(this.usersmanagementList)
+        if (this.tempAdded) {
+          let total = this.total + this.tempAdded.length
+          this.$store.dispatch('setNavigationCount', total)
+        }
         this.items = this.usersmanagementList
         if (this.items.length > 0 && this.tableCreated) {
           loadData(this, 'users', this.items.length)
         }
+        // console.log(this.usersmanagementList)
       }
     },
     loadNextPage () {
@@ -150,6 +165,21 @@ export default {
         }
       }
       this.$store.dispatch('usersmanagement/find', params)
+        .then(response => {
+          console.log(response)
+          this.total = response.total
+          this.$store.dispatch('setNavigationCount', this.total)
+        })
+      this.$store.dispatch('setNavigationCount', this.total)
+      api.service('usersmanagement').on('created', (doc) => {
+        if (this.tempAdded.length === 0) {
+          this.tempAdded.push(doc._id)
+        } else {
+          if (this.tempAdded.find((i) => i !== doc._id)) {
+            this.tempAdded.push(doc._id)
+          }
+        }
+      })
     },
     getNextPage () {
       if (!this.scrollBottom) {
@@ -193,11 +223,9 @@ export default {
     editPassword (item) {
       this.$store.commit('usersmanagement/setCurrent', item)
       this.$root.$emit('openDialogManagePassword')
-    },
-    resendEmail (item) {}
+    }
   },
   mounted () {
-    this.$store.dispatch('setNavigationTitle', 'Semua Pengguna')
     generateTable(this, window, 'users')
   }
 }

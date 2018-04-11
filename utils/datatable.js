@@ -191,10 +191,8 @@ export function loadData (element, className, total) {
 }
 
 export function expandRow (element, className, position, colspan) {
-  console.log('expandRow', position, colspan)
   let tr = element.$el.querySelectorAll('.' + className + ' table tbody tr.datatable__expand-row')
   let td = tr[position].querySelector('td')
-  console.log(td)
   tr[position].setAttribute('style', 'display: table-row')
   td.setAttribute('colspan', colspan)
 }

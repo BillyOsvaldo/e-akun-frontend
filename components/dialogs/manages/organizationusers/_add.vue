@@ -166,7 +166,7 @@ export default {
       usersselect: 'usersselect/list',
       organizationsselect: 'organizationsselect/list',
       organizationstructuresselect: 'organizationstructuresselect/list',
-      organizationusersList: 'organizationusersdraftmanagement/list'
+      organizationusersList: 'allorganizationusersdraft/list'
     }),
     item_users () {
       let _output = []

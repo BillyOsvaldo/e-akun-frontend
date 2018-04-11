@@ -56,7 +56,7 @@
       }
     },
     mounted () {
-      this.$store.dispatch('setNavigationTitle', 'Organisasi Anda')
+      this.$store.dispatch('setNavigationCount', 0)
     }
   }
 </script>

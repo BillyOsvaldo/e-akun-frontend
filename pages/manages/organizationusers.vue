@@ -14,7 +14,7 @@
         <td style="font-weight: 500;">{{ formatName(props.item.profile.name) }}</td>
         <td>{{ (props.item.profile.nip) ? props.item.profile.nip : '-' }}</td>
         <td>{{ props.item.organizationuser.organization.name }}</td>
-        <td>{{ (props.item.position.structure.nameOfPosition + (props.item.position.name === null ? '' : ' ' + props.item.position.name)) }}</td>
+        <td>{{ (props.item.position) ? (props.item.position.structure.nameOfPosition + (props.item.position.name === null ? '' : ' ' + props.item.position.name)) : '' }}</td>
         <td class="text-xs-center">{{ formatDate(props.item.organizationuser.startDate) }}</td>
         <td class="text-xs-center">
           <div>
@@ -53,6 +53,7 @@
 </template>
 
 <script>
+import api from '~/api/feathers-client'
 import {mapState, mapGetters} from 'vuex'
 import {generateTable, resizeTable, loadData, expandRow} from '~/utils/datatable'
 import {nameFormat, defaultDateFormat} from '~/utils/format'
@@ -64,6 +65,7 @@ export default {
     nextPage: false,
     sortValue: {},
     skipPage: 0,
+    total: 0,
     windowSize: {
       x: 0,
       y: 0
@@ -90,7 +92,8 @@ export default {
       { text: 'Organisasi', sortable: false, align: 'left', value: 'organization.name' },
       { text: 'Jabatan', sortable: false, align: 'left', value: 'positions' },
       { text: 'Masa Kerja', sortable: false, align: 'left', value: 'startDate' }
-    ]
+    ],
+    itemAdded: []
   }),
   computed: {
     ...mapState({
@@ -104,6 +107,10 @@ export default {
         this.items = this.organizationusersList
         if (this.items.length > 0 && this.tableCreated) {
           loadData(this, 'organizationusers', this.items.length)
+        }
+        if (this.tempAdded) {
+          let total = this.total + this.tempAdded.length
+          this.$store.dispatch('setNavigationCount', total)
         }
       }
     },
@@ -143,6 +150,20 @@ export default {
         query: {}
       }
       this.$store.dispatch('organizationusersmanagement/find', params)
+        .then(response => {
+          this.total = response.total
+          this.$store.dispatch('setNavigationCount', this.total)
+        })
+      this.$store.dispatch('setNavigationCount', this.total)
+      api.service('organizationusersmanagement').on('created', (doc) => {
+        if (this.tempAdded.length === 0) {
+          this.tempAdded.push(doc._id)
+        } else {
+          if (this.tempAdded.find((i) => i !== doc._id)) {
+            this.tempAdded.push(doc._id)
+          }
+        }
+      })
     },
     getNextPage () {
       if (!this.scrollBottom) {
@@ -190,7 +211,6 @@ export default {
             }
             _data.push(i)
           })
-          console.log(_data)
           let output = {
             _id: props.item._id,
             data: _data

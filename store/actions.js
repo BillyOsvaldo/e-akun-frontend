@@ -13,5 +13,8 @@ export default {
   },
   setNavigationTitle (context, title) {
     context.commit(mutations.SET_NAVIGATION_TITLE, title)
+  },
+  setNavigationCount (context, count) {
+    context.commit(mutations.SET_NAVIGATION_COUNT, count)
   }
 }

@@ -124,7 +124,7 @@
       },
       toProfile () {
         this.menuProfile = false
-        this.$router.push({ path: 'profile' })
+        this.$router.push({ path: '/profile' })
       }
     }
   }

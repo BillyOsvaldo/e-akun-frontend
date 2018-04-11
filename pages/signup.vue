@@ -4,7 +4,7 @@
       <v-flex xs12 sm7 md6 lg4 xl4>
         <v-card>
           <v-progress-linear
-            v-if="(this.$store.state.checkcode.isFindPending || this.$store.state.userapp.isCreatePending)"
+            v-if="(this.checkcode.isFindPending || this.userState.isCreatePending)"
             style="position: absolute;top: 0px; margin: 0; height: 4px !important;"
             v-bind:indeterminate="true"></v-progress-linear>
           <v-card-title primary-title class="card_title_signup">
@@ -13,7 +13,7 @@
                 <img src="../static/images/logo_purbalingga.png" />
               </div>
               <div
-                v-if="this['userapp/current'] === null"
+                v-if="userRegister === null"
                 style="text-align: center;">
                 <h3 class="headline mb-0">Buat e-Akun</h3>
                 <div>Aplikasi Terintegrasi Kabupaten Purbalingga</div>
@@ -23,14 +23,14 @@
           <formCode/>
           <formProfile/>
           <formPassword/>
-          <div v-if="this['userapp/current'] !== null">
+          <div v-if="userRegister !== null">
             <v-card-text class="card_text_signup">
               <div>
                 <v-flex>
                   <h2>Terimakasih,</h2>
                   <p>Pendaftaran e-Akun telah berhasil, berikut ID Akun Anda:</p>
                   <div style="text-align: center;">
-                    <p class="id_akun">{{ this['userapp/current'].username }}</p>
+                    <p class="id_akun">{{ userRegister.username }}</p>
                   </div>
                 </v-flex>
               </div>
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-  import {mapGetters} from 'vuex'
+  import {mapState, mapGetters} from 'vuex'
   import formCode from '~/components/signup/_code'
   import formProfile from '~/components/signup/_profile'
   import formPassword from '~/components/signup/_password'
@@ -59,9 +59,13 @@
       formCode, formProfile, formPassword
     },
     computed: {
-      ...mapGetters([
-        'userapp/current'
-      ])
+      ...mapState({
+        'userState': 'userRegistration',
+        'checkcode': 'checkcode'
+      }),
+      ...mapGetters({
+        'userRegister': 'userRegistration/current'
+      })
     },
     methods: {
       loginUser () {

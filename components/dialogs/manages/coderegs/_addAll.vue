@@ -7,6 +7,20 @@
           <v-container grid-list-md>
             <v-layout wrap>
               <v-flex xs12>
+               <v-select
+                  label="Pilih Organisasi"
+                  autocomplete
+                  :loading="loading"
+                  v-bind:items="item_organizations"
+                  item-text="organization"
+                  :search-input.sync="search"
+                  v-validate="'required'"
+                  data-vv-name="organization"
+                  :error-messages="errors.collect('organization')"
+                  v-model="organization"
+                ></v-select>
+              </v-flex>
+              <v-flex xs12>
                 <v-text-field
                   autofocus
                   v-model="email"
@@ -149,6 +163,9 @@
   const customHelptext = {
     en: {
       custom: {
+        organization: {
+          required: 'Pilih Organisasi harus di isi'
+        },
         email: {
           required: 'Alamat Email harus diisi.',
           email: 'Format Email harus benar.'
@@ -167,6 +184,7 @@
     data: () => ({
       dialogAdd: false,
       hasCheckEmail: false,
+      organization: null,
       email: null,
       loading: false,
       search: null,
@@ -188,7 +206,7 @@
       }),
       ...mapGetters({
         user: 'users/current',
-        organization: 'organizations/current',
+        organizationsselect: 'organizationsselect/list',
         organizationstructuresselect: 'organizationstructuresselect/list'
       }),
       errorMessageEmail () {
@@ -213,6 +231,19 @@
         } else {
           this.hasError = false
         }
+      },
+      item_organizations () {
+        let _output = []
+        if (this.organizationsselect.length > 0) {
+          this.organizationsselect.forEach((item) => {
+            let data = {
+              _id: item._id,
+              organization: item.name
+            }
+            _output.push(data)
+          })
+        }
+        return _output
       },
       item_organizationstructures () {
         let _output = []
@@ -244,6 +275,11 @@
       }
     },
     watch: {
+      organization (val) {
+        if (val) {
+          this.onChangeOrganization(val)
+        }
+      },
       email (val) {
         if (typeof val !== 'undefined' && val !== null) {
           if (val.length === 0) {
@@ -258,6 +294,17 @@
       }
     },
     methods: {
+      onChangeOrganization (val) {
+        if (val) {
+          this.$store.commit('organizationstructuresselect/clearAll')
+          let params = {
+            query: {
+              organization: val._id
+            }
+          }
+          this.$store.dispatch('organizationstructuresselect/find', params)
+        }
+      },
       checkEmail () {
         this.$store.commit('checkuser/clearFindError')
         if (this.email) {
@@ -327,6 +374,7 @@
         this.$store.commit('coderegsmanagement/clearPatchError')
         this.$validator.reset()
         this.hasCheckEmail = false
+        this.organization = null
         this.email = null
         this.search = null
         this.position = false
@@ -343,7 +391,7 @@
       }
     },
     created () {
-      this.$root.$on('openDialogAddCodeRegs', () => {
+      this.$root.$on('openDialogAddAllCodeRegs', () => {
         this.dialogAdd = true
       })
       this.$validator.localize(customHelptext)

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="(formPassword && this['userapp/current'] === null)" style="margin-top: 24px;">
+  <div v-if="(formPassword && this.userRegister === null)" style="margin-top: 24px;">
     <v-card-text class="card_text_signup">
       <div>
         <v-flex>
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-  import {mapGetters} from 'vuex'
+  import {mapState, mapGetters} from 'vuex'
   import {parseFormDate} from '~/utils/format'
   const customHelptext = {
     en: {
@@ -90,6 +90,11 @@
       }
     },
     computed: {
+      ...mapState({
+      }),
+      ...mapGetters({
+        'userRegister': 'userRegistration/current'
+      }),
       disableButton () {
         if (this.agree && (this.password !== null &&
           this.password.length >= 8) &&
@@ -99,10 +104,7 @@
         } else {
           return true
         }
-      },
-      ...mapGetters([
-        'userapp/current'
-      ])
+      }
     },
     methods: {
       backtoProfile () {
@@ -118,8 +120,7 @@
             if (result) {
               this.item.password = this.password
               this.item.birth.day = parseFormDate(this.item.birth.day)
-              console.log(this.item)
-              this.$store.dispatch('userapp/create', this.item)
+              this.$store.dispatch('userRegistration/create', this.item)
             }
           })
       }

@@ -97,7 +97,7 @@
       this.$store.commit('usersmanagement/clearAll')
     },
     mounted () {
-      this.$store.dispatch('setNavigationTitle', 'Profil Anda')
+      this.$store.dispatch('setNavigationCount', 0)
     }
   }
 </script>

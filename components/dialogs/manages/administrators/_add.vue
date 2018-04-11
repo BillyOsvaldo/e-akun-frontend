@@ -228,6 +228,8 @@ export default {
               app: this.app._id,
               administrator: this.administrator._id
             }
+            console.log(data)
+            /*
             this.$store.commit('administratorsmanagement/clearCreateError')
             this.$store.dispatch('administratorsmanagement/create', data)
               .then(response => {
@@ -235,7 +237,7 @@ export default {
                   this.dialogAddAdministrators = false
                   this.resetAll()
                 }
-              })
+              }) */
           }
         })
     },
