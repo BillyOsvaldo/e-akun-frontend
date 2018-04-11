@@ -13,6 +13,13 @@
         <td style="font-weight: 500;">{{ props.item.profile.name.first_name + ' ' + props.item.profile.name.last_name }}</td>
         <td style="font-weight: 500;">{{ props.item.username }}</td>
         <td class="text-xs-left">{{ props.item.email }}</td>
+        <td style="font-weight: 500;">
+        <ul>
+          <li v-for="permission in props.item.permissions">
+            {{ (permission.app === null) ? 'Semua Aplikasi' : permission.app.name }}
+          </li>
+        </ul>
+        </td>
          <td class="text-xs-center">
           <div>
             <v-tooltip
@@ -72,7 +79,9 @@ export default {
       { text: 'Nama', align: 'left', value: 'name' },
       { text: 'Username', align: 'left', value: 'username' },
       { text: 'Email', value: 'email', sortable: false, align: 'left' },
-      { text: '', align: 'left', value: '' }
+      { text: 'Nama Aplikasi', align: 'left', value: 'permissions' },
+      { text: '', align: 'left', value: '' },
+      { text: '', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'name',
