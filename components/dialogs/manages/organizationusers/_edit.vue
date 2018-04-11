@@ -327,8 +327,14 @@ export default {
             let data = {
               user: this.user._id,
               organization: this.organization,
+              inside: this.inside,
               startDate: parseFormDate(this.startDate)
             }
+            if (this.organizationStructure) {
+              data.organizationStructure = this.organizationStructure
+              data.organizationStructureStartDate = parseFormDate(this.startDate)
+            }
+            console.log(data)
             let params = {}
             this.$store.commit('organizationusersdraftmanagement/clearPatchError')
             this.$store.dispatch('organizationusersdraftmanagement/patch', [this.organizationusersdraftmanagement._id, data, params])

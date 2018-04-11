@@ -44,7 +44,12 @@ export default {
       dataUser: 'users/current',
       permissions: 'permissions/current',
       role: 'roles/current',
-      menuList: 'menus/list'
+      menuList: 'menus/list',
+      dataProfile: 'profiles/current',
+      dataOrganizationusers: 'organizationusers/current',
+      dataOrganizations: 'organizations/current',
+      dataRoles: 'roles/current',
+      dataPermissions: 'permissions/current'
     }),
     processData: function () {
       // start loading
@@ -113,6 +118,8 @@ export default {
             })
           })
         }
+      } else {
+        this.loadDataUser(this.dataUser)
       }
     },
     async loadDataUser (user) {
@@ -124,20 +131,20 @@ export default {
           this.$store.commit('users/setCurrent', user)
         }
         // set profile
-        if (user.profile) {
+        if (user.profile && !this.dataProfile) {
           let profile = await this.$store.dispatch('profiles/get', user.profile)
           if (profile.address.postcode) {
             await this.$store.dispatch('postcodes/get', profile.address.postcode)
           }
         }
         // find organization user
-        if (user.organizationuser) {
+        if (user.organizationuser && !this.dataOrganizationusers) {
           let organizationuser = await this.$store.dispatch('organizationusers/get', user.organizationuser)
           user.organizationuser = organizationuser
         }
 
         // find organization
-        if (user.organizationuser && user.organizationuser.organization) {
+        if (user.organizationuser && user.organizationuser.organization && !this.dataOrganizations) {
           let organization = await this.$store.dispatch('organizations/get', user.organizationuser.organization)
           if (organization.address.postcode) {
             await this.$store.dispatch('postcodes/get', organization.address.postcode)
@@ -146,37 +153,39 @@ export default {
         // clear current postcodes
         this.$store.commit('postcodes/clearCurrent')
         // find role
-        if (user.role) {
+        if (user.role && !this.dataRoles) {
           await this.$store.dispatch('roles/get', user.role)
         }
-        // find permissions
-        let params = {
-          query: {
-            $or: [
-              {
-                app: process.env.ID_APP
-              },
-              {
-                app: null
-              }
-            ]
-          }
-        }
-        let allpermissions = await this.$store.dispatch('permissions/find', params)
-        let permissions = null
-        if (user.permissions) {
-          user.permissions.forEach((item) => {
-            let _permission = allpermissions.data.find((i) => i._id === item)
-            if (typeof _permission !== 'undefined') {
-              permissions = _permission
+        if (!this.dataPermissions) {
+          // find permissions
+          let params = {
+            query: {
+              $or: [
+                {
+                  app: process.env.ID_APP
+                },
+                {
+                  app: null
+                }
+              ]
             }
-          })
-        }
-        this.$store.commit('permissions/setCurrent', permissions)
-        if (permissions) {
-          await this.$store.dispatch('administrators/get', permissions.administrator)
-          if (permissions.app) {
-            await this.$store.dispatch('apps/get', permissions.app)
+          }
+          let allpermissions = await this.$store.dispatch('permissions/find', params)
+          let permissions = null
+          if (user.permissions) {
+            user.permissions.forEach((item) => {
+              let _permission = allpermissions.data.find((i) => i._id === item)
+              if (typeof _permission !== 'undefined') {
+                permissions = _permission
+              }
+            })
+          }
+          this.$store.commit('permissions/setCurrent', permissions)
+          if (permissions) {
+            await this.$store.dispatch('administrators/get', permissions.administrator)
+            if (permissions.app) {
+              await this.$store.dispatch('apps/get', permissions.app)
+            }
           }
         }
         this.$store.commit('auth/setUser', user)

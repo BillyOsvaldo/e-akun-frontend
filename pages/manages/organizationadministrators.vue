@@ -10,7 +10,6 @@
       v-bind="loadData + loadNextPage"
     >
       <template slot="items" slot-scope="props">
-        <td style="font-weight: 500;">{{ props.item.profile.nip }}</td>
         <td style="font-weight: 500;">{{ props.item.profile.name.first_name + ' ' + props.item.profile.name.last_name }}</td>
         <td style="font-weight: 500;">{{ props.item.username }}</td>
         <td class="text-xs-left">{{ props.item.email }}</td>
@@ -51,6 +50,7 @@
 </template>
 
 <script>
+import api from '~/api/feathers-client'
 import {mapState, mapGetters} from 'vuex'
 import dialogAdd from '~/components/dialogs/manages/organizationadministrators/_add'
 import dialogEdit from '~/components/dialogs/manages/organizationadministrators/_edit'
@@ -63,17 +63,16 @@ export default {
     nextPage: false,
     sortValue: {},
     skipPage: 0,
+    total: 0,
     windowSize: {
       x: 0,
       y: 0
     },
     headers: [
-      { text: 'NIP', align: 'left', value: 'nip' },
       { text: 'Nama', align: 'left', value: 'name' },
       { text: 'Username', align: 'left', value: 'username' },
       { text: 'Email', value: 'email', sortable: false, align: 'left' },
-      { text: '', align: 'left', value: '' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: '', align: 'left', value: '' }
     ],
     pagination: {
       sortBy: 'name',
@@ -83,7 +82,8 @@ export default {
     items: [],
     doResendEmail: false,
     snackbarView: false,
-    textSnackbar: ''
+    textSnackbar: '',
+    itemAdded: []
   }),
   components: {
     dialogAdd,
@@ -101,6 +101,10 @@ export default {
         this.items = this.adminorganizationList
         if (this.items.length > 0 && this.tableCreated) {
           loadData(this, 'administratorsorganization', this.items.length)
+        }
+        if (this.tempAdded) {
+          let total = this.total + this.tempAdded.length
+          this.$store.dispatch('setNavigationCount', total)
         }
       }
     },
@@ -140,6 +144,20 @@ export default {
         query: {}
       }
       this.$store.dispatch('administratorsorganizationsmanagement/find', params)
+        .then(response => {
+          this.total = response.total
+          this.$store.dispatch('setNavigationCount', this.total)
+        })
+      this.$store.dispatch('setNavigationCount', this.total)
+      api.service('administratorsorganizationsmanagement').on('created', (doc) => {
+        if (this.tempAdded.length === 0) {
+          this.tempAdded.push(doc._id)
+        } else {
+          if (this.tempAdded.find((i) => i !== doc._id)) {
+            this.tempAdded.push(doc._id)
+          }
+        }
+      })
       let paramsforDialogs = {
         query: {}
       }

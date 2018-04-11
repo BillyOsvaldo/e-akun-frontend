@@ -14,7 +14,7 @@
         <td style="font-weight: 500;">{{ formatName(props.item.user.profile.name) }}</td>
         <td>{{ (props.item.user.profile.nip) ? props.item.user.profile.nip : '-'  }}</td>
         <td>{{ props.item.organization.name }}</td>
-        <td>{{ (props.item.organizationstructuresusers.organizationstructure.structure.nameOfPosition + (props.item.organizationstructuresusers.organizationstructure.name === null ? '' : ' ' + props.item.organizationstructuresusers.organizationstructure.name)) }}</td>
+        <td>{{ (props.item.organizationstructuresusers) ? (props.item.organizationstructuresusers.organizationstructure.structure.nameOfPosition + (props.item.organizationstructuresusers.organizationstructure.name === null ? '' : ' ' + props.item.organizationstructuresusers.organizationstructure.name)) : '' }}</td>
         <td class="text-xs-center">{{ formatDate(props.item.startDate) }}</td>
         <td class="text-xs-center">
           <div>
@@ -120,6 +120,7 @@ export default {
       organizationusersList: 'organizationusersdraftmanagement/list'
     }),
     loadData () {
+      console.log(this.organizationusersList)
       if (typeof this.organizationusersList !== 'undefined') {
         this.items = this.organizationusersList
         if (this.items.length > 0 && this.tableCreated) {
