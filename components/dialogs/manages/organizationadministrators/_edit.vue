@@ -156,15 +156,10 @@ export default {
     permissionsFilter (permissions) {
       let output = []
       if (permissions !== null) {
-        if (permissions.length > 1) {
-          permissions.forEach((p) => {
-            let permission = this.permissionsselect.find((item) => item._id === p._id)
-            output.push(permission.app.name)
-          })
-        } else {
-          let permission = this.permissionsselect.find((item) => item._id === permissions._id)
+        permissions.forEach((p) => {
+          let permission = this.permissionsselect.find((item) => item._id === p._id)
           output.push(permission.app.name)
-        }
+        })
       }
       return output
     },

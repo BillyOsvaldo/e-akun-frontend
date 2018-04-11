@@ -123,7 +123,8 @@ export default {
     itemsPermissions () {
       let _output = []
       if (this.permissionsselect.length > 0) {
-        this.permissionsselect.forEach((permission) => {
+        let filterperm = this.permissionsselect.filter((item) => (item.administrator._id !== '5a55753ecbf7231cdf7e90b4'))
+        filterperm.forEach((permission) => {
           _output.push(permission.administrator.name + ((permission.app === null) ? '' : ': ' + permission.app.name))
         })
       }
@@ -195,8 +196,6 @@ export default {
               password: this.password,
               permissions: this.permissionList
             }
-            console.log(data)
-            /*
             this.$store.commit('administratorsmanagement/clearCreateError')
             this.$store.dispatch('administratorsmanagement/create', data)
               .then(response => {
@@ -204,7 +203,7 @@ export default {
                   this.dialogAddAdministrators = false
                   this.resetAll()
                 }
-              }) */
+              })
           }
         })
     },
