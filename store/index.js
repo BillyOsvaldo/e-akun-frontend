@@ -68,6 +68,8 @@ export const storeSocket = new Vuex.Store({
     service('organizationstructuresusersbyuser'),
     service('checkorganizationusers'),
     service('allorganizationusersdraft'),
+    service('administratorsorganizationsmanagement'),
+    service('permissionsadminorganizationsselect'),
     service('checkemail', {
       idField: 'status'
     }),
