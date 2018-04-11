@@ -13,6 +13,14 @@
         <td style="font-weight: 500;">{{ props.item._id }}</td>
         <td style="font-weight: 500;">{{ props.item.username }}</td>
         <td style="font-weight: 500;">{{ props.item.email }}</td>
+        <td style="font-weight: 500;">{{ props.item.permissions[0].administrator.name }}</td>
+        <td style="font-weight: 500;">
+        <ul>
+          <li v-for="permission in props.item.permissions">
+            {{ (permission.app === null) ? 'Semua Aplikasi' : permission.app.name }}
+          </li>
+        </ul>
+        </td>
         <td class="text-xs-center">
           <div>
             <v-tooltip
@@ -85,6 +93,8 @@ export default {
       { text: 'ID Admin', align: 'left', value: '_id' },
       { text: 'Username', align: 'left', value: 'username' },
       { text: 'Email', align: 'left', value: 'email' },
+      { text: 'Hak Akses', align: 'left', value: 'permissions' },
+      { text: 'Nama Aplikasi', align: 'left', value: 'permissions' },
       { text: '', align: 'left', value: '' },
       { text: '', value: 'username', sortable: false, class: 'action' }
     ],
@@ -159,6 +169,7 @@ export default {
         query: {}
       }
       this.$store.dispatch('appsselect/find', paramsforDialogs)
+      this.$store.dispatch('permissionsselect/find', paramsforDialogs)
       this.$store.dispatch('administratorsselect/find', paramsforDialogs)
     },
     getNextPage () {

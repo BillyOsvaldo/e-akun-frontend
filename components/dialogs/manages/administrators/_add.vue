@@ -36,26 +36,11 @@
                   :error-messages="errors.collect('password')"></v-text-field>
               </v-flex>
               <v-flex xs12>
-               <v-select
-                  label="Nama Aplikasi"
-                  autocomplete
-                  :loading="loading"
-                  v-bind:items="item_app"
-                  item-text="app"
-                  :search-input.sync="search"
-                  v-model="app"
-                  @change="appOnChange"
-                ></v-select>
-              </v-flex>
-              <v-flex>
                 <v-select
-                  label="Jenis Pengguna"
-                  autocomplete
-                  :loading="loading"
-                  v-bind:items="item_admin"
-                  item-text="admin"
-                  :search-input.sync="search"
-                  v-model="administrator"
+                  v-model="permissions"
+                  autocomplate
+                  label="Permissions"
+                  :items="itemsPermissions">
                 ></v-select>
               </v-flex>
             </v-layout>
@@ -85,6 +70,9 @@ const customHelptext = {
       },
       password: {
         required: 'Password harus di isi'
+      },
+      permission: {
+        required: 'Permission harus di isi'
       }
     }
   }
@@ -101,7 +89,7 @@ export default {
       search: null,
       tempItemsApp: [],
       tempItemsAdmin: [],
-      app: null,
+      permissions: null,
       administrator: null,
       id: null,
       appSelected: null
@@ -115,48 +103,9 @@ export default {
     }),
     ...mapGetters({
       adminList: 'administratorsselect/list',
-      appList: 'appsselect/list'
+      appList: 'appsselect/list',
+      permissionsselect: 'permissionsselect/list'
     }),
-    item_app: function () {
-      let _output = []
-      if (this.appList.length > 0) {
-        let datadefault = {
-          _id: null,
-          app: 'Semua Aplikasi'
-        }
-        _output.push(datadefault)
-        this.appList.forEach((post) => {
-          let item = post.name
-          let _data = {
-            _id: post._id,
-            app: item
-          }
-          _output.push(_data)
-          this.tempItemsApp.push(post)
-        })
-      } else {
-        _output = []
-      }
-      return _output
-    },
-    item_admin: function () {
-      if (!this.adminList.length) return []
-      if (this.appSelected === null) return []
-
-      let _output = []
-      this.adminList.forEach((post) => {
-        let _data = { _id: post._id, admin: post.name }
-        const isSemuaAplikasi = this.appSelected._id === null
-        const isNotSemuaAplikasi = this.appSelected._id !== null
-        if (isSemuaAplikasi && post.name === 'Super Admin') {
-          _output.push(_data)
-        }
-        if (isNotSemuaAplikasi && post.name !== 'Super Admin') {
-          _output.push(_data)
-        }
-      })
-      return _output
-    },
     errorMessageUsername () {
       if (this.checkusername.errorOnFind !== null) {
         return 'Username Sudah Digunakan.'
@@ -169,6 +118,25 @@ export default {
         return 'Email Sudah Digunakan.'
       } else {
         return this.errors.collect('email')
+      }
+    },
+    itemsPermissions () {
+      let _output = []
+      if (this.permissionsselect.length > 0) {
+        this.permissionsselect.forEach((permission) => {
+          _output.push(permission.administrator.name + ((permission.app === null) ? '' : ': ' + permission.app.name))
+        })
+      }
+      return _output
+    },
+    permissionList () {
+      let names = this.permissions.split(': ')
+      if (names.length > 1) {
+        let permission = this.permissionsselect.find((item) => (item.administrator.name === names[0] && item.app.name === names[1]))
+        return permission._id
+      } else {
+        let permission = this.permissionsselect.find((item) => item.administrator.name === name)
+        return permission._id
       }
     }
   },
@@ -225,8 +193,7 @@ export default {
               username: this.username,
               email: this.email,
               password: this.password,
-              app: this.app._id,
-              administrator: this.administrator._id
+              permissions: this.permissionList
             }
             this.$store.commit('administratorsmanagement/clearCreateError')
             this.$store.dispatch('administratorsmanagement/create', data)
@@ -247,8 +214,7 @@ export default {
       this.username = null
       this.email = null
       this.password = null
-      this.app = null
-      this.administrator = null
+      this.permissions = null
     }
   },
   created () {
