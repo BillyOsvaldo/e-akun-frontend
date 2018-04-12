@@ -158,6 +158,7 @@
       }
     },
     created () {
+      this.$store.commit('users/clearAll')
       this.$validator.localize(customHelptext)
     }
   }

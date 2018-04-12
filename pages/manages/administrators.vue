@@ -13,7 +13,7 @@
         <td style="font-weight: 500;">{{ props.item._id }}</td>
         <td style="font-weight: 500;">{{ props.item.username }}</td>
         <td style="font-weight: 500;">{{ props.item.email }}</td>
-        <td style="font-weight: 500;">{{ props.item.permissions[0].administrator.name }}</td>
+        <td style="font-weight: 500;">{{ props.item.permissions[0].administrator.name + ((props.item.permissions[0].app) ? ' ' + props.item.permissions[0].app.name : '') }}</td>
         <td class="text-xs-center">
           <div>
             <v-tooltip
@@ -65,6 +65,7 @@
 </template>
 
 <script>
+import api from '~/api/feathers-client'
 import {mapState, mapGetters} from 'vuex'
 import dialogAdd from '~/components/dialogs/manages/administrators/_add'
 import dialogEdit from '~/components/dialogs/manages/administrators/_edit'
@@ -78,6 +79,7 @@ export default {
     nextPage: false,
     sortValue: {},
     skipPage: 0,
+    total: 0,
     windowSize: {
       x: 0,
       y: 0
@@ -98,7 +100,8 @@ export default {
     items: [],
     doResendEmail: false,
     snackbarView: false,
-    textSnackbar: ''
+    textSnackbar: '',
+    itemAdded: []
   }),
   components: {
     dialogAdd,
@@ -117,6 +120,10 @@ export default {
         this.items = this.adminList
         if (this.items.length > 0 && this.tableCreated) {
           loadData(this, 'administrators', this.items.length)
+        }
+        if (this.tempAdded) {
+          let total = this.total + this.tempAdded.length
+          this.$store.dispatch('setNavigationCount', total)
         }
       }
     },
@@ -157,6 +164,20 @@ export default {
         query: { $where: 'this.administrators.length > 0' }
       }
       this.$store.dispatch('administratorsmanagement/find', params)
+        .then(response => {
+          this.total = response.total
+          this.$store.dispatch('setNavigationCount', this.total)
+        })
+      this.$store.dispatch('setNavigationCount', this.total)
+      api.service('administratorsmanagement').on('created', (doc) => {
+        if (this.tempAdded.length === 0) {
+          this.tempAdded.push(doc._id)
+        } else {
+          if (this.tempAdded.find((i) => i !== doc._id)) {
+            this.tempAdded.push(doc._id)
+          }
+        }
+      })
       let paramsforDialogs = {
         query: {}
       }

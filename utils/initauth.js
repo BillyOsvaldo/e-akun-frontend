@@ -20,10 +20,12 @@ export const initAuth = function initAuth (options) {
 
   commit(`${moduleName}/setAccessToken`, null)
   commit(`${moduleName}/setPayload`, null)
+  console.log('cookie', typeof req.headers.cookie)
 
-  if (typeof req.headers.cookie !== 'undefined') {
+  if (req.headers.cookie) {
     const accessToken = readCookie(req.headers.cookie, cookieName)
     const payload = getValidPayloadFromToken(accessToken)
+    console.log('payload', payload)
 
     if (payload) {
       commit(`${moduleName}/setAccessToken`, accessToken)

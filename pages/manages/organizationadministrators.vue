@@ -80,7 +80,6 @@ export default {
       { text: 'Username', align: 'left', value: 'username' },
       { text: 'Email', value: 'email', sortable: false, align: 'left' },
       { text: 'Nama Aplikasi', align: 'left', value: 'permissions' },
-      { text: '', align: 'left', value: '' },
       { text: '', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {

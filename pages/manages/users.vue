@@ -166,7 +166,6 @@ export default {
       }
       this.$store.dispatch('usersmanagement/find', params)
         .then(response => {
-          console.log(response)
           this.total = response.total
           this.$store.dispatch('setNavigationCount', this.total)
         })

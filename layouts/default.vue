@@ -44,24 +44,19 @@ export default {
       dataUser: 'users/current',
       permissions: 'permissions/current',
       role: 'roles/current',
-      menuList: 'menus/list',
-      dataProfile: 'profiles/current',
-      dataOrganizationusers: 'organizationusers/current',
-      dataOrganizations: 'organizations/current',
-      dataRoles: 'roles/current',
-      dataPermissions: 'permissions/current'
+      menuList: 'menus/list'
     }),
     processData: function () {
-      // start loading
-      if (!this.hasMenuLoaded && !this.auth.publicPages.includes(this.$route.name)) {
-        this.isLoading = true
-        this.isFlashing = true
-      }
-
       if (this.auth.publicPages.includes(this.$route.name)) {
         this.hasLoaded = true
       } else {
         this.hasLoaded = false
+      }
+
+      // start loading
+      if (!this.hasMenuLoaded && !this.auth.publicPages.includes(this.$route.name)) {
+        this.isLoading = true
+        this.isFlashing = true
       }
 
       // init menu
@@ -98,28 +93,19 @@ export default {
   },
   methods: {
     initAuth () {
-      if (this.auth.accessToken && this.user.currentId === null) {
-        if (this.auth.payload.hasOwnProperty('userId')) {
-          this.$store.dispatch('users/get', this.auth.payload.userId).then((user) => {
-            // JWT authentication successful
-            if (user && this.auth.userService) {
-              this.loadDataUser(user)
-            }
-          }).catch(e => {
-            // console.error('Authentication error', e)
-            // Load auth again :D
-            api.authenticate().then(response => {
-              this.$store.dispatch('users/get', this.auth.payload.userId).then((user) => {
-                // JWT authentication successful
-                if (user && this.auth.userService) {
-                  this.loadDataUser(user)
-                }
-              })
+      if (this.auth.accessToken && this.dataUser) {
+        this.loadDataUser(this.dataUser)
+      } else {
+        if (this.auth.payload) {
+          api.authenticate().then(response => {
+            this.$store.dispatch('users/get', this.auth.payload.userId).then((user) => {
+              // JWT authentication successful
+              if (user && this.auth.userService) {
+                this.loadDataUser(user)
+              }
             })
           })
         }
-      } else {
-        this.loadDataUser(this.dataUser)
       }
     },
     async loadDataUser (user) {
@@ -131,20 +117,20 @@ export default {
           this.$store.commit('users/setCurrent', user)
         }
         // set profile
-        if (user.profile && !this.dataProfile) {
+        if (user.profile) {
           let profile = await this.$store.dispatch('profiles/get', user.profile)
           if (profile.address.postcode) {
             await this.$store.dispatch('postcodes/get', profile.address.postcode)
           }
         }
         // find organization user
-        if (user.organizationuser && !this.dataOrganizationusers) {
+        if (user.organizationuser) {
           let organizationuser = await this.$store.dispatch('organizationusers/get', user.organizationuser)
           user.organizationuser = organizationuser
         }
 
         // find organization
-        if (user.organizationuser && user.organizationuser.organization && !this.dataOrganizations) {
+        if (user.organizationuser && user.organizationuser.organization) {
           let organization = await this.$store.dispatch('organizations/get', user.organizationuser.organization)
           if (organization.address.postcode) {
             await this.$store.dispatch('postcodes/get', organization.address.postcode)
@@ -153,39 +139,37 @@ export default {
         // clear current postcodes
         this.$store.commit('postcodes/clearCurrent')
         // find role
-        if (user.role && !this.dataRoles) {
+        if (user.role) {
           await this.$store.dispatch('roles/get', user.role)
         }
-        if (!this.dataPermissions) {
-          // find permissions
-          let params = {
-            query: {
-              $or: [
-                {
-                  app: process.env.ID_APP
-                },
-                {
-                  app: null
-                }
-              ]
-            }
-          }
-          let allpermissions = await this.$store.dispatch('permissions/find', params)
-          let permissions = null
-          if (user.permissions) {
-            user.permissions.forEach((item) => {
-              let _permission = allpermissions.data.find((i) => i._id === item)
-              if (typeof _permission !== 'undefined') {
-                permissions = _permission
+        // find permissions
+        let params = {
+          query: {
+            $or: [
+              {
+                app: process.env.ID_APP
+              },
+              {
+                app: null
               }
-            })
+            ]
           }
-          this.$store.commit('permissions/setCurrent', permissions)
-          if (permissions) {
-            await this.$store.dispatch('administrators/get', permissions.administrator)
-            if (permissions.app) {
-              await this.$store.dispatch('apps/get', permissions.app)
+        }
+        let allpermissions = await this.$store.dispatch('permissions/find', params)
+        let permissions = null
+        if (user.permissions) {
+          user.permissions.forEach((item) => {
+            let _permission = allpermissions.data.find((i) => i._id === item)
+            if (typeof _permission !== 'undefined') {
+              permissions = _permission
             }
+          })
+        }
+        this.$store.commit('permissions/setCurrent', permissions)
+        if (permissions) {
+          await this.$store.dispatch('administrators/get', permissions.administrator)
+          if (permissions.app) {
+            await this.$store.dispatch('apps/get', permissions.app)
           }
         }
         this.$store.commit('auth/setUser', user)

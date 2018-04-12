@@ -12,8 +12,4 @@ const app = feathers()
   .configure(socketio(socket))
   .configure(auth({ jwtStrategy: 'jwt', cookie: 'feathers-jwt', storage: new CookieStorage({path: '/'}) }))
 
-if (app.passport.getCookie('feathers-jwt') !== null) {
-  app.authenticate()
-}
-
 export default app

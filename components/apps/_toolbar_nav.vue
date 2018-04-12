@@ -120,7 +120,9 @@
       ...mapActions('auth', ['logout']),
       logoutAccount () {
         this.menuProfile = false
-        this.logout().then(() => this.$router.go({ name: 'signin' }))
+        this.logout().then(() => {
+          this.$router.go({ name: 'signin' })
+        })
       },
       toProfile () {
         this.menuProfile = false
