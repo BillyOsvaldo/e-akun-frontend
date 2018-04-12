@@ -91,7 +91,7 @@ export default {
     doResendEmail: false,
     snackbarView: false,
     textSnackbar: '',
-    itemAdded: []
+    tempAdded: []
   }),
   components: {
     dialogAdd,
@@ -109,6 +109,9 @@ export default {
         this.items = this.adminorganizationList
         if (this.items.length > 0 && this.tableCreated) {
           loadData(this, 'administratorsorganization', this.items.length)
+        }
+        if (this.total) {
+          this.$store.dispatch('setNavigationCount', this.total)
         }
         if (this.tempAdded) {
           let total = this.total + this.tempAdded.length
@@ -157,12 +160,20 @@ export default {
           this.$store.dispatch('setNavigationCount', this.total)
         })
       this.$store.dispatch('setNavigationCount', this.total)
-      api.service('administratorsorganizationsmanagement').on('created', (doc) => {
-        if (this.tempAdded.length === 0) {
-          this.tempAdded.push(doc._id)
-        } else {
-          if (this.tempAdded.find((i) => i !== doc._id)) {
+      api.service('administratorsorganizationsmanagement').on('patched', (doc) => {
+        if (doc.permissions.length > 0) {
+          if (this.tempAdded.length === 0) {
             this.tempAdded.push(doc._id)
+          } else {
+            if (this.tempAdded.find((i) => i !== doc._id)) {
+              this.tempAdded.push(doc._id)
+            }
+          }
+        } else {
+          if (this.tempAdded.length > 0) {
+            this.tempAdded.splice(this.tempAdded[this.tempAdded.indexOf(doc._id)], 1)
+          } else {
+            this.total--
           }
         }
       })

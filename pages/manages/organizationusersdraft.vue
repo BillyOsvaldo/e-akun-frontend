@@ -105,7 +105,7 @@ export default {
     doResendEmail: false,
     snackbarView: false,
     textSnackbar: '',
-    itemAdded: []
+    tempAdded: []
   }),
   components: {
     dialogAdd,
@@ -125,6 +125,9 @@ export default {
         this.items = this.organizationusersList
         if (this.items.length > 0 && this.tableCreated) {
           loadData(this, 'organizationusers', this.items.length)
+        }
+        if (this.total) {
+          this.$store.dispatch('setNavigationCount', this.total)
         }
         if (this.tempAdded) {
           let total = this.total + this.tempAdded.length
@@ -170,6 +173,7 @@ export default {
       this.$store.dispatch('organizationusersdraftmanagement/find', params)
         .then(response => {
           this.total = response.total
+          console.log(response)
           this.$store.dispatch('setNavigationCount', this.total)
         })
       this.$store.dispatch('setNavigationCount', this.total)
@@ -180,6 +184,13 @@ export default {
           if (this.tempAdded.find((i) => i !== doc._id)) {
             this.tempAdded.push(doc._id)
           }
+        }
+      })
+      api.service('organizationusersdraftmanagement').on('removed', (doc) => {
+        if (this.tempAdded.length > 0) {
+          this.tempAdded.splice(this.tempAdded[this.tempAdded.indexOf(doc._id)], 1)
+        } else {
+          this.total--
         }
       })
       this.$store.dispatch('organizationsselect/find', params)

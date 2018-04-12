@@ -33,7 +33,7 @@
           <v-spacer></v-spacer>
           <v-btn flat @click.native="closeDialogButton">Batal</v-btn>
           <v-btn flat color="blue darken-1"
-            @click.native="postUpdate">Tambah</v-btn>
+            @click.native="postUpdate">Ubah</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -175,6 +175,9 @@ export default {
             this.$store.dispatch('administratorsorganizationsmanagement/patch', [this.adminorganizationList._id, data, params])
               .then(response => {
                 if (response) {
+                  if (response.permissions.length === 0) {
+                    this.$store.commit('administratorsorganizationsmanagement/removeItem', response._id)
+                  }
                   this.dialogEditAdministratorsOrganizations = false
                   this.resetAll()
                 }

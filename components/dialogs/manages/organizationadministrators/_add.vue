@@ -82,6 +82,7 @@ export default {
       administratorsorganization: 'administratorsorganizationsmanagement'
     }),
     ...mapGetters({
+      administratorsorganizationList: 'administratorsorganizationsmanagement/list',
       adminorganizationList: 'administratorsorganizationsmanagement/current',
       usersselect: 'usersselect/list',
       organizationusersList: 'organizationusersdraftmanagement/list',
@@ -183,6 +184,9 @@ export default {
             this.$store.dispatch('administratorsorganizationsmanagement/patch', [this.user._id, data, params])
               .then(response => {
                 if (response) {
+                  if (this.administratorsorganizationList.find((item) => item._id !== response._id)) {
+                    this.$store.commit('administratorsorganizationsmanagement/addItem', response)
+                  }
                   this.dialogAddAdministratorsOrganizations = false
                   this.resetAll()
                 }

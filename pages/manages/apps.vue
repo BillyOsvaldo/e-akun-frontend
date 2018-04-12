@@ -86,7 +86,7 @@ export default {
     doResendEmail: false,
     snackbarView: false,
     textSnackbar: '',
-    itemAdded: []
+    tempAdded: []
   }),
   components: {
     dialogAdd,

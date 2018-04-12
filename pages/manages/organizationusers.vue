@@ -93,7 +93,7 @@ export default {
       { text: 'Jabatan', sortable: false, align: 'left', value: 'positions' },
       { text: 'Masa Kerja', sortable: false, align: 'left', value: 'startDate' }
     ],
-    itemAdded: []
+    tempAdded: []
   }),
   computed: {
     ...mapState({
