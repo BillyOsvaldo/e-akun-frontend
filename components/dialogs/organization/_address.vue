@@ -26,6 +26,9 @@
                   :cache-items="cacheItems"
                   :search-input.sync="search"
                   v-model="address"
+                  v-validate="'required'"
+                  data-vv-name="address"
+                  :error-messages="errors.collect('address')"
                 ></v-select>
               </v-flex>
               <v-flex xs12>
