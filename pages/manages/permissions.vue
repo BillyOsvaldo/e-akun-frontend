@@ -20,6 +20,7 @@
     </v-data-table>
     <v-fab-transition>
       <v-btn
+        class="btn--floating--custom"
         color="red"
         dark
         fixed

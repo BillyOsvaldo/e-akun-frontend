@@ -32,6 +32,7 @@
     </v-data-table>
     <v-fab-transition>
       <v-btn
+        class="btn--floating--custom"
         color="red"
         dark
         fixed
@@ -70,7 +71,7 @@ export default {
     headers: [
       { text: 'ID Aplikasi', align: 'left', value: '_id' },
       { text: 'Nama', align: 'left', value: 'name' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'edit', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'name',

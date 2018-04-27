@@ -64,7 +64,6 @@
                   label="Roles"
                   multiple
                   chips
-                  tags
                   :items="itemsRoles">
                 ></v-select>
               </v-flex>
@@ -74,7 +73,6 @@
                   label="Permissions"
                   multiple
                   chips
-                  tags
                   :items="itemsPermissions">
                 ></v-select>
               </v-flex>

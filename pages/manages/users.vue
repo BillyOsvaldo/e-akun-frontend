@@ -85,8 +85,8 @@ export default {
       { text: 'Email', value: 'email', align: 'center', sortable: false },
       { text: 'Penempatan', value: 'organizationusers.inside', align: 'center', sortable: false },
       { text: 'Jabatan', value: 'position', align: 'center', sortable: false },
-      { text: '', value: 'name', sortable: false, class: 'action' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'password', value: 'name', sortable: false, class: 'action' },
+      { text: 'email', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'profile.name.first_name',

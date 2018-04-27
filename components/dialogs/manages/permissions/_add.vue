@@ -13,7 +13,7 @@
                   :loading="loading"
                   v-bind:items="item_app"
                   item-text="app"
-                  :search-input.sync="search"
+                  :search-input.sync="searchApp"
                   v-model="app"
                   v-validate="'required'"
                   data-vv-name="app"
@@ -28,7 +28,7 @@
                   :loading="loading"
                   v-bind:items="item_admin"
                   item-text="admin"
-                  :search-input.sync="search"
+                  :search-input.sync="searchAdmin"
                   v-validate="'required'"
                   data-vv-name="administrator"
                   :error-messages="errorMessageAdmin"
@@ -69,7 +69,8 @@ export default {
     return {
       dialogAddPermissions: false,
       loading: false,
-      search: null,
+      searchApp: null,
+      searchAdmin: null,
       tempItemsApp: [],
       tempItemsAdmin: [],
       app: null,

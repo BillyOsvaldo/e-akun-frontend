@@ -31,13 +31,14 @@
                     :items="item_organizationstructures"
                     item-value="_id"
                     item-text="organizationstructure"
-                    :search-input.sync="search"
+                    :search-input.sync="searchOrganizationStructure"
                     v-model="organizationstructure"
                     :error-messages="errorOrganizationStructure"
                   ></v-select>
                 </v-flex>
                 <v-flex>
                   <v-menu
+                    ref="menu_organizationStructuresUsersStartDate"
                     lazy
                     :close-on-content-click="false"
                     v-model="menu_organizationStructuresUsersStartDate"
@@ -47,6 +48,7 @@
                     :nudge-right="40"
                     max-width="290px"
                     min-width="290px"
+                    :return-value.sync="organizationStructuresUsersStartDate"
                   >
                     <v-text-field
                       slot="activator"
@@ -59,15 +61,10 @@
                     <v-date-picker
                       locale="id"
                       v-model="date_for_organizationStructuresUsersStartDate"
-                      @input="organizationStructuresUsersStartDate = formatDate($event)"
-                      no-title scrollable actions>
-                      <template slot-scope="{ save, cancel }">
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn flat color="primary" @click="cancel">Cancel</v-btn>
-                          <v-btn flat color="primary" @click="save">OK</v-btn>
-                        </v-card-actions>
-                      </template>
+                      @input="organizationStructuresUsersStartDate = formatDate($event)">
+                        <v-spacer></v-spacer>
+                        <v-btn flat color="primary" @click="menu_organizationStructuresUsersStartDate = false">Cancel</v-btn>
+                        <v-btn flat color="primary" @click="$refs.menu_organizationStructuresUsersStartDate.save(organizationStructuresUsersStartDate)">OK</v-btn>
                     </v-date-picker>
                   </v-menu>
                 </v-flex>
@@ -81,7 +78,7 @@
                   v-bind:items="item_insides"
                   item-text="inside"
                   item-value="_id"
-                  :search-input.sync="search"
+                  :search-input.sync="searchInside"
                   v-model="inside"
                   v-validate="'required'"
                   data-vv-name="inside"
@@ -90,6 +87,7 @@
               </v-flex>
               <v-flex>
                 <v-menu
+                  ref="menu_startDate"
                   lazy
                   :close-on-content-click="false"
                   v-model="menu_startDate"
@@ -99,6 +97,7 @@
                   :nudge-right="40"
                   max-width="290px"
                   min-width="290px"
+                  :return-value.sync="startDate"
                 >
                   <v-text-field
                     slot="activator"
@@ -116,15 +115,10 @@
                   <v-date-picker
                     locale="id"
                     v-model="date_for_startDate"
-                    @input="startDate = formatDate($event)"
-                    no-title scrollable actions>
-                    <template slot-scope="{ save, cancel }">
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn flat color="primary" @click="cancel">Cancel</v-btn>
-                        <v-btn flat color="primary" @click="save">OK</v-btn>
-                      </v-card-actions>
-                    </template>
+                    @input="startDate = formatDate($event)">
+                      <v-spacer></v-spacer>
+                      <v-btn flat color="primary" @click="menu_startDate = false">Cancel</v-btn>
+                      <v-btn flat color="primary" @click="$refs.menu_startDate.save(startDate)">OK</v-btn>
                   </v-date-picker>
                 </v-menu>
               </v-flex>
@@ -169,7 +163,8 @@
       dialogEdit: false,
       email: null,
       loading: false,
-      search: null,
+      searchOrganizationStructure: null,
+      searchInside: null,
       position: false,
       menu_startDate: false,
       date_for_startDate: null,

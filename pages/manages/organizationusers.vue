@@ -76,7 +76,7 @@ export default {
       { text: 'Organisasi', align: 'left', value: 'organizationuser.organization.name' },
       { text: 'Jabatan', align: 'left', value: 'position' },
       { text: 'Tanggal Mulai', sortable: false, align: 'center', value: 'startDate' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'detail', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'profile.name',

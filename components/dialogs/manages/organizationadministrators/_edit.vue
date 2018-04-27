@@ -22,7 +22,6 @@
                   label="Permissions"
                   multiple
                   chips
-                  tags
                   :items="itemsPermissions">
                 ></v-select>
               </v-flex>

@@ -34,6 +34,7 @@
     </v-data-table>
     <v-fab-transition>
       <v-btn
+        class="btn--floating--custom"
         color="red"
         dark
         fixed
@@ -75,7 +76,7 @@ export default {
       { text: 'Struktur', align: 'left', sortable: false, value: 'structure.name' },
       { text: 'Nama dalam Struktur', sortable: false, align: 'left', value: 'name' },
       { text: 'Status', value: 'status', sortable: false, align: 'center' },
-      { text: '', value: '', sortable: false, class: 'action' }
+      { text: 'edit', value: '', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'order',

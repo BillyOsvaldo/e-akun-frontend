@@ -42,6 +42,7 @@
         </v-flex>
         <v-flex>
           <v-menu
+            ref="menu_birthday"
             lazy
             :close-on-content-click="false"
             v-model="menu_birthday"
@@ -51,6 +52,7 @@
             :nudge-right="40"
             max-width="290px"
             min-width="290px"
+            :return-value.sync="birthday"
           >
             <v-text-field
               slot="activator"
@@ -68,16 +70,12 @@
             <v-date-picker
               locale="id"
               v-model="date_for_birthday"
-              :allowed-dates="allowDate"
-              @input="birthday = formatDate($event)"
-              no-title scrollable actions>
-              <template slot-scope="{ save, cancel }">
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn flat color="primary" @click="cancel">Cancel</v-btn>
-                  <v-btn flat color="primary" @click="save">OK</v-btn>
-                </v-card-actions>
-              </template>
+              :min="minDate"
+              :max="maxDate"
+              @input="birthday = formatDate($event)">
+                <v-spacer></v-spacer>
+                <v-btn flat color="primary" @click="menu_birthday = false">Cancel</v-btn>
+                <v-btn flat color="primary" @click="$refs.menu_birthday.save(birthday)">OK</v-btn>
             </v-date-picker>
           </v-menu>
         </v-flex>
@@ -179,12 +177,11 @@
       }
     },
     computed: {
-      allowDate: function () {
-        let _allow = {
-          min: parseFormDate('01/01/' + moment().subtract(65, 'years').format('YYYY')),
-          max: parseFormDate('31/12/' + moment().subtract(18, 'years').format('YYYY'))
-        }
-        return _allow
+      minDate () {
+        return parseFormDate('01/01/' + moment().subtract(65, 'years').format('YYYY'))
+      },
+      maxDate () {
+        return parseFormDate('31/12/' + moment().subtract(18, 'years').format('YYYY'))
       }
     },
     watch: {

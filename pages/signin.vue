@@ -104,7 +104,8 @@
     data () {
       return {
         username: undefined,
-        password: undefined
+        password: undefined,
+        app: null
       }
     },
     computed: {
@@ -117,6 +118,9 @@
       }),
       errorMessageUsername: function () {
         if (this.checkuser.errorOnFind !== null) {
+          if (this.checkuser.errorOnFind.message.includes('Timeout')) {
+            return 'Koneksi server tidak tersedia.'
+          }
           return this.checkuser.errorOnFind.message
         } else {
           return this.errors.collect('username')
@@ -131,7 +135,7 @@
       },
       redirect: function () {
         if (this.auth.accessToken !== null) {
-          if (typeof this.$route.query.action === 'undefined') {
+          if (!this.app) {
             this.$router.push('/')
           }
         }
@@ -155,11 +159,22 @@
       ...mapActions('auth', ['authenticate']),
       loginUser (username, password) {
         this.authenticate({strategy: 'local', username, password})
+          .then(response => {
+            if (this.app) {
+              this.$store.dispatch('apps/get', this.app)
+                .then(response => {
+                  window.location = response.url
+                })
+            }
+          })
       }
     },
     created () {
       this.$store.commit('users/clearAll')
       this.$validator.localize(customHelptext)
+      if (this.$router.history.current.query) {
+        this.app = this.$router.history.current.query.app
+      }
     }
   }
 </script>

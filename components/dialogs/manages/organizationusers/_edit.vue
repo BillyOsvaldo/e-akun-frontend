@@ -33,7 +33,7 @@
                   :items="item_organizations"
                   item-text="organization"
                   item-value="_id"
-                  :search-input.sync="search"
+                  :search-input.sync="searchOrganization"
                   v-validate="'required'"
                   data-vv-name="organization"
                   :error-messages="errors.collect('organization')"
@@ -48,7 +48,7 @@
                   :items="item_organizationstructures"
                   item-value="_id"
                   item-text="organizationstructure"
-                  :search-input.sync="search"
+                  :search-input.sync="searchOrganizationStructure"
                   v-model="organizationStructure"
                 ></v-select>
               </v-flex>
@@ -60,7 +60,7 @@
                   v-bind:items="item_insides"
                   item-value="_id"
                   item-text="inside"
-                  :search-input.sync="search"
+                  :search-input.sync="searchInside"
                   v-model="inside"
                   v-validate="'required'"
                   data-vv-name="inside"
@@ -69,6 +69,7 @@
               </v-flex>
               <v-flex>
                 <v-menu
+                  ref="menu_startDate"
                   lazy
                   :close-on-content-click="false"
                   v-model="menu_startDate"
@@ -78,6 +79,7 @@
                   :nudge-right="40"
                   max-width="290px"
                   min-width="290px"
+                  :return-value.sync="startDate"
                 >
                   <v-text-field
                     slot="activator"
@@ -95,15 +97,10 @@
                   <v-date-picker
                     locale="id"
                     v-model="date_for_startDate"
-                    @input="startDate = formatDate($event)"
-                    no-title scrollable actions>
-                    <template slot-scope="{ save, cancel }">
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn flat color="primary" @click="cancel">Cancel</v-btn>
-                        <v-btn flat color="primary" @click="save">OK</v-btn>
-                      </v-card-actions>
-                    </template>
+                    @input="startDate = formatDate($event)">
+                      <v-spacer></v-spacer>
+                      <v-btn flat color="primary" @click="menu_startDate = false">Cancel</v-btn>
+                      <v-btn flat color="primary" @click="$refs.menu_startDate.save(startDate)">OK</v-btn>
                   </v-date-picker>
                 </v-menu>
               </v-flex>
@@ -156,7 +153,9 @@ export default {
       cacheItems: true,
       tempItems: [],
       searchUser: null,
-      search: null,
+      searchOrganization: null,
+      searchOrganizationStructure: null,
+      searchInside: null,
       user: null,
       organization: null,
       menu_startDate: false,
@@ -334,7 +333,6 @@ export default {
               data.organizationStructure = this.organizationStructure
               data.organizationStructureStartDate = parseFormDate(this.startDate)
             }
-            console.log(data)
             let params = {}
             this.$store.commit('organizationusersdraftmanagement/clearPatchError')
             this.$store.dispatch('organizationusersdraftmanagement/patch', [this.organizationusersdraftmanagement._id, data, params])

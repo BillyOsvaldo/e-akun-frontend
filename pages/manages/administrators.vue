@@ -47,6 +47,7 @@
     </v-data-table>
     <v-fab-transition>
       <v-btn
+        class="btn--floating--custom"
         color="red"
         dark
         fixed
@@ -89,8 +90,8 @@ export default {
       { text: 'Username', align: 'left', value: 'username' },
       { text: 'Email', align: 'left', value: 'email' },
       { text: 'Hak Akses', align: 'left', value: 'permissions' },
-      { text: '', align: 'left', value: '' },
-      { text: '', value: 'username', sortable: false, class: 'action' }
+      { text: 'email', align: 'left', value: '' },
+      { text: 'password', value: 'username', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'username',

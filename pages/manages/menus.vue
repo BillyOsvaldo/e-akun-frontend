@@ -67,6 +67,7 @@
     </v-data-table>
     <v-fab-transition>
       <v-btn
+        class="btn--floating--custom"
         color="red"
         dark
         fixed
@@ -107,9 +108,9 @@ export default {
       { text: 'Nama', align: 'left', value: 'name' },
       { text: 'Deskripsi', align: 'left', sortable: false, value: 'desc' },
       { text: 'Path', value: 'to', sortable: false, align: 'left' },
-      { text: '', value: 'name', sortable: false, class: 'action' },
-      { text: '', value: 'name', sortable: false, class: 'action' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'edit', value: 'name', sortable: false, class: 'action' },
+      { text: 'up', value: 'name', sortable: false, class: 'action' },
+      { text: 'down', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'order',

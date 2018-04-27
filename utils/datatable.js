@@ -163,24 +163,26 @@ export function resizeTable (element, getWindow, className) {
   let toolbarHeight = 1
   let tHead = element.$el.querySelector('.headTableView table thead')
   let headTableHeight = 1
-  headTableHeight += tHead.clientHeight
-  toolbars.forEach((item) => {
-    toolbarHeight += item.clientHeight
-  })
+  if (tHead) {
+    headTableHeight += tHead.clientHeight
+    toolbars.forEach((item) => {
+      toolbarHeight += item.clientHeight
+    })
 
-  let heightTable = toolbarHeight + headTableHeight
-  if (getWindow.outerWidth > getWindow.innerWidth) {
-    if (getWindow.innerWidth < 1000) {
-      heightTable = toolbarHeight + headTableHeight + 16
+    let heightTable = toolbarHeight + headTableHeight
+    if (getWindow.outerWidth > getWindow.innerWidth) {
+      if (getWindow.innerWidth < 1000) {
+        heightTable = toolbarHeight + headTableHeight + 16
+      }
+    } else {
+      if (getWindow.outerWidth < 1000) {
+        heightTable = toolbarHeight + headTableHeight + 16
+      }
     }
-  } else {
-    if (getWindow.outerWidth < 1000) {
-      heightTable = toolbarHeight + headTableHeight + 16
-    }
+
+    divTableOne.setAttribute('style', 'position: absolute; left: 0px; width: 100%; overflow: hidden; top: ' + (toolbarHeight + headTableHeight) + 'px; height: calc(100vh - ' + heightTable + 'px);')
+    divContentTable.setAttribute('style', 'overflow-x: auto; overflow-y: hidden; height: calc(100vh - ' + toolbarHeight + 'px);')
   }
-
-  divTableOne.setAttribute('style', 'position: absolute; left: 0px; width: 100%; overflow: hidden; top: ' + (toolbarHeight + headTableHeight) + 'px; height: calc(100vh - ' + heightTable + 'px);')
-  divContentTable.setAttribute('style', 'overflow-x: auto; overflow-y: hidden; height: calc(100vh - ' + toolbarHeight + 'px);')
 }
 
 export function loadData (element, className, total) {

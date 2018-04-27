@@ -65,7 +65,6 @@
                   label="Roles"
                   multiple
                   chips
-                  tags
                   :items="itemsRoles">
                 ></v-select>
               </v-flex>
@@ -75,7 +74,6 @@
                   label="Permissions"
                   multiple
                   chips
-                  tags
                   :items="itemsPermissions">
                 ></v-select>
               </v-flex>
@@ -212,30 +210,22 @@ export default {
     },
     rolesFilter (roles) {
       let output = []
-      if (roles !== null) {
-        if (roles.length > 1) {
-          roles.forEach((r) => {
-            let role = this.rolesselect.find((item) => item._id === r._id)
-            output.push(role.name)
-          })
-        } else {
-          let role = this.rolesselect.find((item) => item._id === roles._id)
+      if (roles && roles.length > 0) {
+        roles.forEach((r) => {
+          let role = this.rolesselect.find((item) => item._id === r._id)
           output.push(role.name)
-        }
+        })
       }
       return output
     },
     permissionsFilter (permissions) {
       let output = []
       if (permissions !== null) {
-        if (permissions.length > 1) {
+        if (permissions && permissions.length > 0) {
           permissions.forEach((p) => {
             let permission = this.permissionsselect.find((item) => item._id === p._id)
             output.push(permission.administrator.name + ((permission.app === null) ? '' : ': ' + permission.app.name))
           })
-        } else {
-          let permission = this.permissionsselect.find((item) => item._id === permissions._id)
-          output.push(permission.administrator.name + ((permission.app === null) ? '' : ': ' + permission.app.name))
         }
       }
       return output

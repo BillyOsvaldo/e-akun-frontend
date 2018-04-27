@@ -52,6 +52,7 @@
     </v-data-table>
     <v-fab-transition>
       <v-btn
+        class="btn--floating--custom"
         color="red"
         dark
         fixed
@@ -106,8 +107,8 @@ export default {
       { text: 'Organisasi', value: 'organization', align: 'center', sortable: false },
       { text: 'Dibuat', value: 'createdAt_timestamp', align: 'center' },
       { text: 'Status', value: 'status', align: 'center' },
-      { text: '', value: 'name', sortable: false, class: 'action' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'edit', value: 'name', sortable: false, class: 'action' },
+      { text: 'send', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'createdAt_timestamp',

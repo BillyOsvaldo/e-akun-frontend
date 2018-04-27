@@ -33,6 +33,7 @@
     </v-data-table>
     <v-fab-transition>
       <v-btn
+        class="btn--floating--custom"
         color="red"
         dark
         fixed
@@ -72,7 +73,7 @@ export default {
       { text: 'ID Administrator', align: 'left', value: '_id' },
       { text: 'Nama', align: 'left', value: 'name' },
       { text: 'Tag', value: 'tag', sortable: false, align: 'left' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'edit', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'name',

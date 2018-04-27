@@ -2,7 +2,7 @@
   <div>
     <v-toolbar flat dark color="primary" style="padding: 0 8px;">
       <v-toolbar-side-icon @click.stop="isOpen = !isOpen"></v-toolbar-side-icon>
-      <v-toolbar-title class="white--text">e-Akun</v-toolbar-title>
+      <v-toolbar-title class="white--text">{{appName}}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon color="white--text">
         <v-icon>search</v-icon>
@@ -51,7 +51,7 @@
         <v-list-tile avatar>
           <v-list-tile-content>
             <v-list-tile-title style="font-size: 24px;
-    font-weight: 400;">e-Akun</v-list-tile-title>
+    font-weight: 400;">{{appName}}</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -81,6 +81,7 @@
   export default {
     data () {
       return {
+        appName: '',
         isOpen: null,
         menuProfile: false
       }
@@ -128,6 +129,9 @@
         this.menuProfile = false
         this.$router.push({ path: '/profile' })
       }
+    },
+    created () {
+      this.appName = process.env.APP_NAME
     }
   }
 </script>

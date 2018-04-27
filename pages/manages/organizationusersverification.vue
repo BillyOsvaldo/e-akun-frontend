@@ -14,7 +14,7 @@
         <td style="font-weight: 500;">{{ formatName(props.item.user.profile.name) }}</td>
         <td>{{ (props.item.user.profile.nip) ? props.item.user.profile.nip : '-'  }}</td>
         <td>{{ props.item.organization.name }}</td>
-        <td>{{ (props.item.organizationstructuresusers.organizationstructure.structure.nameOfPosition + (props.item.organizationstructuresusers.organizationstructure.name === null ? '' : ' ' + props.item.organizationstructuresusers.organizationstructure.name)) }}</td>
+        <td>{{ (props.item.organizationstructuresusers.structure) ? (props.item.organizationstructuresusers.organizationstructure.structure.nameOfPosition + (props.item.organizationstructuresusers.organizationstructure.name === null ? '' : ' ' + props.item.organizationstructuresusers.organizationstructure.name)) : '' }}</td>
         <td class="text-xs-center">{{ formatDate(props.item.startDate) }}</td>
         <td class="text-xs-center">
           <div>
@@ -78,8 +78,8 @@ export default {
       { text: 'Organisasi', align: 'left', value: 'organization.name' },
       { text: 'Jabatan', align: 'left', value: 'organizationstructuresusers' },
       { text: 'Tanggal Mulai', sortable: false, align: 'center', value: 'startDate' },
-      { text: '', value: 'name', sortable: false, class: 'action' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'edit', value: 'name', sortable: false, class: 'action' },
+      { text: 'publish', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'user.profile.name',
@@ -108,6 +108,9 @@ export default {
         this.items = this.organizationusersList
         if (this.items.length > 0 && this.tableCreated) {
           loadData(this, 'organizationusers', this.items.length)
+        }
+        if (this.total) {
+          this.$store.dispatch('setNavigationCount', this.total)
         }
         if (this.tempAdded) {
           let total = this.total + this.tempAdded.length
@@ -163,6 +166,13 @@ export default {
           if (this.tempAdded.find((i) => i !== doc._id)) {
             this.tempAdded.push(doc._id)
           }
+        }
+      })
+      api.service('organizationusersdraftmanagement').on('removed', (doc) => {
+        if (this.tempAdded.length > 0) {
+          this.tempAdded.splice(this.tempAdded[this.tempAdded.indexOf(doc._id)], 1)
+        } else {
+          this.total--
         }
       })
       this.$store.dispatch('organizationsselect/find', params)

@@ -8,13 +8,12 @@
       id="scroll-target"
       :pagination.sync="pagination"
       v-bind="loadData + loadNextPage"
-      item-key="_id"
     >
       <template slot="items" slot-scope="props">
         <td style="font-weight: 500;">{{ formatName(props.item.user.profile.name) }}</td>
         <td>{{ (props.item.user.profile.nip) ? props.item.user.profile.nip : '-'  }}</td>
         <td>{{ props.item.organization.name }}</td>
-        <td>{{ (props.item.organizationstructuresusers) ? (props.item.organizationstructuresusers.organizationstructure.structure.nameOfPosition + (props.item.organizationstructuresusers.organizationstructure.name === null ? '' : ' ' + props.item.organizationstructuresusers.organizationstructure.name)) : '' }}</td>
+        <td>{{ (props.item.organizationstructuresusers.structure) ? (props.item.organizationstructuresusers.organizationstructure.structure.nameOfPosition + (props.item.organizationstructuresusers.organizationstructure.name === null ? '' : ' ' + props.item.organizationstructuresusers.organizationstructure.name)) : '' }}</td>
         <td class="text-xs-center">{{ formatDate(props.item.startDate) }}</td>
         <td class="text-xs-center">
           <div>
@@ -49,6 +48,7 @@
     </v-data-table>
     <v-fab-transition>
       <v-btn
+        class="btn--floating--custom"
         color="red"
         dark
         fixed
@@ -93,8 +93,8 @@ export default {
       { text: 'Organisasi', align: 'left', value: 'organization.name' },
       { text: 'Jabatan', align: 'left', value: 'organizationstructuresusers' },
       { text: 'Tanggal Mulai', sortable: false, align: 'center', value: 'startDate' },
-      { text: '', value: 'name', sortable: false, class: 'action' },
-      { text: '', value: 'name', sortable: false, class: 'action' }
+      { text: 'edit', value: 'name', sortable: false, class: 'action' },
+      { text: 'remove', value: 'name', sortable: false, class: 'action' }
     ],
     pagination: {
       sortBy: 'user.profile.name',
@@ -120,7 +120,6 @@ export default {
       organizationusersList: 'organizationusersdraftmanagement/list'
     }),
     loadData () {
-      console.log(this.organizationusersList)
       if (typeof this.organizationusersList !== 'undefined') {
         this.items = this.organizationusersList
         if (this.items.length > 0 && this.tableCreated) {
@@ -172,12 +171,13 @@ export default {
       }
       this.$store.dispatch('organizationusersdraftmanagement/find', params)
         .then(response => {
-          this.total = response.total
           console.log(response)
+          this.total = response.total
           this.$store.dispatch('setNavigationCount', this.total)
         })
       this.$store.dispatch('setNavigationCount', this.total)
       api.service('organizationusersdraftmanagement').on('created', (doc) => {
+        console.log('created!', doc._id)
         if (this.tempAdded.length === 0) {
           this.tempAdded.push(doc._id)
         } else {
@@ -222,7 +222,6 @@ export default {
       }
       this.$store.dispatch('allorganizationusersdraft/find', params)
         .then(response => {
-          console.log(response)
           this.$root.$emit('openDialogAddOrganizationUsers')
         })
     },

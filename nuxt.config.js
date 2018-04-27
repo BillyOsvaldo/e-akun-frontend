@@ -1,10 +1,10 @@
-const webpack = require('webpack')
+// const webpack = require('webpack')
 module.exports = {
   /*
   ** Headers of the page
   */
   head: {
-    title: 'e-akun',
+    title: 'e-Akun',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -45,6 +45,7 @@ module.exports = {
     { src: '~/plugins/vue-validate', ssr: true }
   ],
   env: {
+    APP_NAME: process.env.APP_NAME || 'e-Akun',
     ID_APP: process.env.ID_APP || '5a4b20a2cbf7231cdf7e909b',
     HOST_URL_SSO: process.env.HOST_URL_SSO || 'http://localhost:3000',
     HOST_URL_EPRESENSI: process.env.HOST_URL_EPRESENSI || 'http://localhost:8081',

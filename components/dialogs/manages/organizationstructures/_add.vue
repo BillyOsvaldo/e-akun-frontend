@@ -13,7 +13,7 @@
                   :loading="loading"
                   v-bind:items="item_organizations"
                   item-text="organization"
-                  :search-input.sync="search"
+                  :search-input.sync="searchOrganization"
                   v-validate="'required'"
                   data-vv-name="organization"
                   :error-messages="errors.collect('organization')"
@@ -27,7 +27,7 @@
                   :loading="loading"
                   v-bind:items="item_structures"
                   item-text="structure"
-                  :search-input.sync="search"
+                  :search-input.sync="searchStructure"
                   v-validate="'required'"
                   data-vv-name="structure"
                   :error-messages="errors.collect('structure')"
@@ -47,7 +47,7 @@
                   v-bind:items="item_parents"
                   item-value="_id"
                   item-text="parent"
-                  :search-input.sync="search"
+                  :search-input.sync="searchParent"
                   v-model="parent"
                 ></v-select>
               </v-flex>
@@ -59,7 +59,7 @@
                   v-bind:items="item_parents"
                   item-value="_id"
                   item-text="parent"
-                  :search-input.sync="search"
+                  :search-input.sync="searchAltParent"
                   v-model="alt_parent"
                 ></v-select>
               </v-flex>
@@ -69,7 +69,6 @@
                   label="Roles"
                   multiple
                   chips
-                  tags
                   :items="itemsRoles">
                 ></v-select>
               </v-flex>
@@ -114,7 +113,10 @@ export default {
     return {
       dialogAddOrganizationStructures: false,
       loading: false,
-      search: null,
+      searchOrganization: null,
+      searchStructure: null,
+      searchParent: null,
+      searchAltParent: null,
       organization: null,
       structure: null,
       parent: null,
